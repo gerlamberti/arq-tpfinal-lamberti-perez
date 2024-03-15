@@ -24,25 +24,30 @@ module instruction_fetch #(
     parameter WIDTH = 32
 ) (
     input i_clock,
-    output [WIDTH-1:0] o_pc
+    output [WIDTH-1:0] o_instruction
 );
     wire [WIDTH-1:0] i_A;
     wire [WIDTH-1:0] i_B = 32'd4;
     wire [WIDTH-1:0] o_Result;
+    wire [WIDTH-1:0] o_pc;
        
     wire [WIDTH-1:0] i_next_pc;
-
-    
 
     adder adder (
         .i_A(o_pc),
         .i_B(i_B),
         .o_Result(o_Result)
     );
-    
-    program_counter program_counter(
+     
+   program_counter program_counter(
         .i_next_pc(o_Result),
         .i_clock(i_clock),
         .o_pc(o_pc)
+    );
+    
+    
+    instruction_memory instruction_memory(
+        .i_instruction_address(o_pc),
+        .o_instruction(o_instruction)
     );
 endmodule

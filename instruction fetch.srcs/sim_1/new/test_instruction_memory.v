@@ -42,7 +42,7 @@ module test_instruction_memory;
         #10
         i_instruction_address = 32'h0;
         #1
-        if (o_instruction != 32'b00110000_00001100_00000011_00000000) begin
+        if (o_instruction != 32'h5) begin
             $display("Anduvo mal");
             $finish;
         end;
@@ -50,7 +50,7 @@ module test_instruction_memory;
         #10
         i_instruction_address = 32'h4;
         #1
-        if (o_instruction != 32'b11111111_00001100_00000011_11000000) begin
+        if (o_instruction != 32'h7a) begin
             $display("Anduvo mal");
             $finish;
         end;
@@ -61,7 +61,7 @@ module test_instruction_memory;
         // ya que el modulo no esta preparado para devolver instrucciones cuyo address
         // no sean un múltiplo de 4
         #1
-        if (o_instruction != 32'b11111111_00001100_00000011_11000000) begin
+        if (o_instruction != 32'h7a) begin
             $display("Anduvo mal. Tiene que dar el mismo numero que antes.");
             $finish;
         end;

@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -33,10 +34,10 @@ module instruction_memory #(
 
     reg [WIDTH-1:0] memory [0:MAX_NUM_OF_INSTRUCTIONS];
     initial begin
-        o_instruction = 0; 
-        memory[0] = 32'b00110000_00001100_00000011_00000000;
-        memory[1] = 32'b11111111_00001100_00000011_11000000;
-        memory[2] = 80;
+        o_instruction = 0;
+        memory[0] = 32'h5;
+        memory[1] = 32'h7a;
+        memory[2] = 32'h9b;
     end;
     always @(*) begin
         // Esto hace o_instruction = memory [i_instruccion_address % 4]
