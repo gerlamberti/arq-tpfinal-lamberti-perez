@@ -74,8 +74,11 @@ always @(*)
             4'b0111:
                 temporal = i_A != i_B;
             // EQ
-            4'b000101:
-                temporal = i_A == i_B; 
+            4'b1000:
+                temporal = i_A == i_B;
+            // LUI
+            4'b1001:
+                temporal = i_A << 16; 
             default:
                 temporal = {4{1'b0}};
         endcase
