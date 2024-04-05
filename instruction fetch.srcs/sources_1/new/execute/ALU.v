@@ -37,11 +37,20 @@ module ALU
 always @(*) 
     begin
         case(i_Op)
-            // ADD
-            6'b100000:
+            // SLL Shift left logical (r1<<r2) es igual que SLLV
+            6'b000000, 6'b000100: 
+                temporal = i_B << i_A;
+            // SRL Shift right logical (r1>>r2) es igual que SRLV
+            6'b000010, 6'b000110:
+                temporal =  $signed(i_A)>>>i_B;
+            // SRA  Shift right arithmetic (r1>>>r2) es igual que SRAV
+            6'b000011, 6'b000111:
+                temporal =   i_A >>> i_B;
+            // ADD - ADDU (100001)
+            6'b100000, 6'b100001:
                 temporal = i_A + i_B;
-            // SUB
-            6'b100010:
+            // SUB - SUBU
+            6'b100010, 6'b100011:
                 temporal = i_A - i_B;
             // AND
             6'b100100:
@@ -52,16 +61,20 @@ always @(*)
             // XOR
             6'b100110:
                 temporal = i_A ^ i_B;
-            // SRL
-            6'b000011:
-                temporal = i_A>>i_B;
-            // SRA
-            6'b000010:
-                temporal = $signed(i_A)>>>i_B;
             // NOR
             6'b100111:
-                temporal = ~(i_A | i_B);  
-            //DEFAULT
+                temporal = ~(i_A | i_B);
+            // SLT
+            6'b101010:
+                temporal = i_A < i_B;
+            // BEQ: Invertida porque AND a la entrada espera un 1 para saltar
+            // ***********************************************
+            6'b000100: // ES EL MISMO OPCODE QUE SLLV - OJO!!
+            // ***********************************************
+                temporal = i_A != i_B;
+            // BNEQ: Invertida
+            6'b000101:
+                temporal =   i_A == i_B; 
             default:
                 temporal = {1'b1, {5{1'b0}} };
         endcase
