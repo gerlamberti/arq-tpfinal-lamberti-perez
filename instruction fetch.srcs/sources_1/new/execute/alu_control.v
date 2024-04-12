@@ -20,29 +20,48 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-`define RTYPE_OPCODE 6'h00
+`define RTYPE_OPCODE 6'b000000
 // Loads
-`define LB_OPCODE    6'h20 
-`define LH_OPCODE    6'h21 
-`define LHU_OPCODE   6'h22 
-`define LW_OPCODE    6'h23 
-`define LWU_OPCODE   6'h24 
-`define LBU_OPCODE   6'h25 
-// stores
-`define SB_OPCODE    6'h28 
-`define SH_OPCODE    6'h29 
-`define SW_OPCODE    6'h2b
+`define LB_OPCODE    6'b100000
+`define LH_OPCODE    6'b100001
+`define LHU_OPCODE   6'b100010
+`define LW_OPCODE    6'b100011
+`define LWU_OPCODE   6'b100100
+`define LBU_OPCODE   6'b100101
+// Stores
+`define SB_OPCODE    6'b101000
+`define SH_OPCODE    6'b101001
+`define SW_OPCODE    6'b101011
 
-`define ADDI_OPCODE  6'h08 
-`define ANDI_OPCODE  6'h0c 
-`define ORI_OPCODE   6'h0d 
-`define XORI_OPCODE  6'h0e 
-`define BEQ_OPCODE   6'h04
+`define ADDI_OPCODE  6'b001000
+`define ANDI_OPCODE  6'b001100
+`define ORI_OPCODE   6'b001101
+`define XORI_OPCODE  6'b001110
+`define BEQ_OPCODE   6'b000100
 
-`define BNE_OPCODE   6'h05 
-`define SLTI_OPCODE  6'h0a 
-`define LUI_OPCODE   6'h0f 
-`define JAL_OPCODE   6'h03 
+`define BNE_OPCODE   6'b000101
+`define SLTI_OPCODE  6'b001010
+`define LUI_OPCODE   6'b001111
+`define JAL_OPCODE   6'b000011
+// Function codes
+`define SLL_FCODE    6'b000000
+`define SRL_FCODE    6'b000010
+`define SRA_FCODE    6'b000011
+`define SLLV_FCODE   6'b000100
+`define SRLV_FCODE   6'b000110
+`define SRAV_FCODE   6'b000111
+`define JALR_FCODE   6'b001001
+`define ADD_FCODE    6'b100000
+`define ADDU_FCODE   6'b100001
+`define SUB_FCODE    6'b100010
+`define SUBU_FCODE   6'b100011
+`define AND_FCODE    6'b100100
+`define OR_FCODE     6'b100101
+`define XOR_FCODE    6'b100110
+`define NOR_FCODE    6'b100111
+`define SLT_FCODE    6'b101010
+
+
 
 
 
@@ -54,7 +73,7 @@ module alu_control#(
     )
     (
         input      [WIDTH_FCODE-1     : 0] i_funct_code, // Codigo de funcion para instrucciones tipo R
-        input      [WIDTH_OPCODE-1    : 0] i_alu_op,     // opcode
+        input      [WIDTH_OPCODE-1    : 0] i_op_code,     // opcode
         output reg [WIDTH_ALU_CTRLI-1 : 0] o_alu_ctrl   // Senial que indica a la ALU que tipo de operacion ejecutar
     );
     
@@ -63,89 +82,66 @@ module alu_control#(
         // Inicializacion para que no se produzca un inferred latch
         o_alu_ctrl = 4'h00;
 
-        case(i_alu_op)
+        case(i_op_code)
             `RTYPE_OPCODE: begin
                 case(i_funct_code)
                         // TODO: implementar correctamente los R type
                         `SLL_FCODE   : begin
                             o_alu_ctrl = 4'h00;
-                            o_shamt_ctrl = 1'b0; // Elige shamt
-                            o_last_register_ctrl = 1'b0;
                         end 
                         `SRL_FCODE   : begin
                             o_alu_ctrl = 4'h01;
-                            o_shamt_ctrl = 1'b0; // Elige shamt
-                            o_last_register_ctrl = 1'b0;
+                          
                         end
                         `SRA_FCODE   : begin
                             o_alu_ctrl = 4'h02;
-                            o_shamt_ctrl = 1'b0; // Elige shamt
-                            o_last_register_ctrl = 1'b0;
+
                         end
                         `SLLV_FCODE  : begin
                             o_alu_ctrl = 4'h00;
-                            o_shamt_ctrl = 1'b1; // Elige data_a (rs)
-                            o_last_register_ctrl = 1'b0;
+                          
                         end
                         `SRLV_FCODE  : begin
                             o_alu_ctrl = 4'h01;
-                            o_shamt_ctrl = 1'b1; // Elige data_a (rs)
-                            o_last_register_ctrl = 1'b0;
+                    
                         end
                         `SRAV_FCODE  : begin
                             o_alu_ctrl = 4'h02;
-                            o_shamt_ctrl = 1'b1; // Elige data_a (rs)
-                            o_last_register_ctrl = 1'b0;
+                           
                         end
                         `ADD_FCODE   : begin
                             o_alu_ctrl = 4'h03;
-                            o_shamt_ctrl = 1'b1; // Elige data_a
-                            o_last_register_ctrl = 1'b0;
+                         
                         end
                         `ADDU_FCODE  : begin
                             o_alu_ctrl = 4'h03;
-                            o_shamt_ctrl = 1'b1; // Elige data_a
-                            o_last_register_ctrl = 1'b0;
+                           
                         end
                         `SUB_FCODE   : begin
                             o_alu_ctrl = 4'h04;
-                            o_shamt_ctrl = 1'b1; // Elige data_a
-                            o_last_register_ctrl = 1'b0;
+                            
                         end
                         `SUBU_FCODE  : begin
                             o_alu_ctrl = 4'h04;
-                            o_shamt_ctrl = 1'b1; // Elige data_a
-                            o_last_register_ctrl = 1'b0;
+                        
                         end
                         `AND_FCODE   : begin
                             o_alu_ctrl = 4'h05;
-                            o_shamt_ctrl = 1'b1; // Elige data_a
-                            o_last_register_ctrl = 1'b0;
                         end
                         `OR_FCODE    : begin
                             o_alu_ctrl = 4'h06;
-                            o_shamt_ctrl = 1'b1; // Elige data_a
-                            o_last_register_ctrl = 1'b0;
                         end
                         `XOR_FCODE   : begin
                             o_alu_ctrl = 4'h07;
-                            o_shamt_ctrl = 1'b1; // Elige data_a
-                            o_last_register_ctrl = 1'b0;
                         end
                         `NOR_FCODE   : begin
                             o_alu_ctrl = 4'h08;
-                            o_shamt_ctrl = 1'b1; // Elige data_a
-                            o_last_register_ctrl = 1'b0;
                         end
                         `SLT_FCODE   : begin
                             o_alu_ctrl = 4'h09;
-                            o_shamt_ctrl = 1'b1; // Elige data_a
-                            o_last_register_ctrl = 1'b0;
                         end
                         `JALR_FCODE  : begin
                             o_alu_ctrl = 4'h00;
-                            o_shamt_ctrl = 1'b0;
-                            o_last_register_ctrl = 1'b1;
                         end
                         default     : begin
                             o_alu_ctrl = o_alu_ctrl;
