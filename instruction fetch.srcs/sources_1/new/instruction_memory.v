@@ -21,7 +21,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 /*
-* Un requerimiento de este módulo es que las instrucciones estén alineadas de a 4 bytes y comiencen
+* Un requerimiento de este mï¿½dulo es que las instrucciones estï¿½n alineadas de a 4 bytes y comiencen
 * en algun address multiplo de 4 (no se pueden poner address que no sean multiplos de 4)
 */
 module instruction_memory #(
