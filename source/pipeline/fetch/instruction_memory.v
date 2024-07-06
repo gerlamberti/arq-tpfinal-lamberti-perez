@@ -3,7 +3,7 @@
 
 module instruction_memory #(
     parameter NB = 32,
-    parameter N_OF_INSTRUCTIONS = 64,
+    parameter N_OF_INSTRUCTIONS = 64
 
 ) (
     input                   i_clock,
@@ -16,7 +16,4 @@ module instruction_memory #(
 
     reg     [NB-1:0] instruction_memory_bank[N_OF_INSTRUCTIONS-1:0];
 
-
-    
-    
 endmodule

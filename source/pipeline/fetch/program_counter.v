@@ -10,7 +10,7 @@ module program_counter #(
     input   [NB-1: 0] i_new_pc, // Si i_write_new_pc = 1 se queda con este PC, sino se queda con el previo.
     output reg [NB-1: 0] o_pc
     // TODO: falta la posibilidad de saltar (o_pc_4, o_pc_8)
-)
+);
 
     always@(posedge i_clock) begin
         if(i_reset) begin
@@ -18,7 +18,7 @@ module program_counter #(
         end
         if (i_write_new_pc) begin
             o_pc <= i_new_pc;
-        else
+        end else begin
             o_pc <= o_pc;
         end
     end
