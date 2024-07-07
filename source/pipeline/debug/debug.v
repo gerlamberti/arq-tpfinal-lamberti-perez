@@ -12,8 +12,6 @@ module debug #(
         input           [DATA_BITS-1:0]         i_uart_rx_data,
         input                                   i_uart_tx_done,
         input           [NB-1:0]                i_mips_pc,
-        input           [NBITS-1 :0]            i_clk_wiz_count,
-        output                                  o_uart_rx_reset,
         output          [DATA_BITS-1:0]         o_uart_tx_data,
         output                                  o_uart_tx_ready,
         output          wire                    o_step
