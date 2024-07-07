@@ -3,8 +3,7 @@
 
 module instruction_memory #(
     parameter NB = 32,
-    parameter N_OF_INSTRUCTIONS = 64,
-
+    parameter N_OF_INSTRUCTIONS = 64
 ) (
     input                   i_clock,
     input                   i_reset,

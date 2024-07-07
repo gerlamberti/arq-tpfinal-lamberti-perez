@@ -8,6 +8,7 @@
 
 # Vivado simulation and synthesis files
 *.xsim/
+*.sim/
 *.runs/
 *.ip_user_files/
 *.hw/
