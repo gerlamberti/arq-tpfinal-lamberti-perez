@@ -16,7 +16,7 @@ module tb_PC();
         .i_reset        (i_reset),
         .i_step         (i_step),
         .i_pc_write     (i_pc_write),
-        .i_new_pc       (i_new_PC),
+        .i_new_pc       (o_pc),
         .o_pc           (o_pc)  
     );
 
@@ -31,11 +31,11 @@ module tb_PC();
     end
            
     initial begin
-        #10
-        if (o_pc != 32'h0) begin
-            $display("Error en el PC deberias ser 0x0");
-            $finish;
-        end
+    
+        // Reset
+        i_reset = 1;
+        #20
+        i_reset = 0;
         
         #10
         if (o_pc != 32'h4) begin
@@ -49,8 +49,14 @@ module tb_PC();
             $finish;
         end
         
+        #10
+        if (o_pc != 32'hC) begin
+            $display("Error en el PC deberias ser 0xC");
+            $finish;
+        end
+        
         #5
-        if (o_pc != 32'h8) begin
+        if (o_pc != 32'hC) begin
             $display("Debería seguir valiendo 8 porque no hubo un nuevo flanco");
             $finish;
         end

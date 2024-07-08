@@ -10,12 +10,18 @@ module PC
         input   wire                i_step,
         input   wire                i_pc_write,
         input   wire    [NB-1:0]    i_new_pc,
-        output  wire    [NB-1:0]    o_pc
+        output  wire    [NB-1:0]    o_pc,
+        output  wire    [NB-1:0]    o_pc4,
+        output  wire    [NB-1:0]    o_pc8
     );
 
     reg [NB-1:0]    pc;
 
-    always @(posedge i_clk) begin
+    initial begin
+        pc = {NB{1'b0}};
+    end
+    
+    always @(posedge i_clk or posedge i_reset) begin
         if (i_reset) begin
             pc <= {NB{1'b0}};
         end
@@ -24,6 +30,8 @@ module PC
         end
     end
     
-    assign o_pc = pc + 4;
+    assign  o_pc     =   pc;// burbuja       
+    assign  o_pc_4   =   pc + 4;// incremento normal
+    assign  o_pc_8   =   pc + 8;// JAL instruccion
 
 endmodule
