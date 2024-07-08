@@ -15,6 +15,9 @@
 *.hw/
 *.hw_def/
 *.data/
+*.sim/
+*.srcs/
+*.dcp
 
 # Vivado project files
 *.cache/
