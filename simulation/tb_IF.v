@@ -8,37 +8,36 @@ module tb_IF();
     reg                            i_step;
     reg                            i_reset;
     reg                            i_pc_write;
-    reg         [NB-1:0]           i_new_write;
     wire        [NB-1:0]           o_IF_pc;
+    wire        [NB-1:0]           o_IF_pc4;
+    wire        [NB-1:0]           o_IF_pc8;
+    wire        [NB-1:0]           o_instruction;
 
     IF #(.NB(NB)) u_IF(
         .i_clk          (i_clk),
         .i_reset        (i_reset),
         .i_step         (i_step),
         .i_pc_write     (i_pc_write),
-        .i_new_write    (i_new_write),
-        .o_IF_pc        (o_IF_pc)  
+        .o_IF_pc        (o_IF_pc),
+        .o_IF_pc4       (o_IF_pc4),
+        .o_IF_pc8       (o_IF_pc8),
+        .o_instruction  (o_instruction) 
     );
 
     always #10 i_clk = ~i_clk;
-    
-    always @(posedge i_clk) begin
-        i_new_write <= o_IF_pc;
-    end
-    
+        
     initial begin
         i_reset     =   1'b0;
         i_clk       =   1'b0;
         i_step      =   1'b1;
         i_pc_write  =   1'b1;
-        i_new_write =   32'b0;  
     end
     
     initial begin
     
         // Reset
         i_reset = 1;
-        #5
+        #20
         i_reset = 0;
         
         #10

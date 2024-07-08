@@ -11,8 +11,8 @@ module PC
         input   wire                i_pc_write,
         input   wire    [NB-1:0]    i_new_pc,
         output  wire    [NB-1:0]    o_pc,
-        output  wire    [NB-1:0]    o_pc4,
-        output  wire    [NB-1:0]    o_pc8
+        output  wire    [NB-1:0]    o_pc_4,
+        output  wire    [NB-1:0]    o_pc_8
     );
 
     reg [NB-1:0]    pc;
@@ -21,7 +21,7 @@ module PC
         pc = {NB{1'b0}};
     end
     
-    always @(posedge i_clk or posedge i_reset) begin
+    always @(posedge i_clk) begin
         if (i_reset) begin
             pc <= {NB{1'b0}};
         end
