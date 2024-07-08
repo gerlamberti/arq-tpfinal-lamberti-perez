@@ -26,7 +26,7 @@ module instruction_memory
 
         // Fijar codigo de instrucion que saca.
         memory[0]   =   32'h00000000;
-        memory[1]   =   32'h00000001;
+        memory[1]   =   32'h00000000001000110000000000100000; //add $0,$1,$3
         memory[2]   =   32'h00000002;
         memory[3]   =   32'h00000003;
         memory[4]   =   32'h00000004;
@@ -44,7 +44,7 @@ module instruction_memory
 
     // Leer el valor de la tabla de búsqueda en función de la dirección
     always @(*) begin
-        o_instruction = memory[i_pc];
+        o_instruction = memory[i_pc[31:2]];
     end
 
 
@@ -59,13 +59,13 @@ module instruction_memory
     //Pone a la salida la instruccion del senialada por el PC
     // always @(posedge i_clk) begin
     //     if (i_step)begin
-    //         o_instruction  <= memory[i_pc];
+    //         o_instruction  <= memory[i_pc]; // Creo que agregando [31:2] hacemos que arranque en la posicion del array 0
     //     end
     // end
 
     // Crea el segmento de codigo que va arrecorrer el PC.
     // always @(posedge i_write_intruc) begin
-    //     memory[i_address_memory_ins] <= i_instruction; 
+    //     memory[i_address_memory_ins] <= i_instruction; // Desde la debug unit viene .i_address_memory_ins(count_dir_mem_instr) viene de 4 en 4.
     // end
 
 endmodule
