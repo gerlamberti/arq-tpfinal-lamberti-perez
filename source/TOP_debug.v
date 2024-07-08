@@ -21,7 +21,7 @@ wire tick_completos_receptor;
 wire tick_completos_transmisor;
 wire comienzo_transmicion;
 wire [ancho_dato-1:0] salida_receptor;//?????????????????????????????????????????
-wire [ancho_dato-1:0] entrada_transmisor;//?????????????????????????????????????????
+wire [ancho_dato-1:0] entrada_transmisor_wire;//?????????????????????????????????????????
 /*-----------------------------------------------------------------------------------*/
 // instanciando el generador de baudio 
 GeneradorDeBaudios #
@@ -55,31 +55,26 @@ receptor_1
 	.senial_ticks_completos(tick_completos_receptor),
 	.salida_receptor(salida_receptor)//salida de datos hacia la interfaz
 );
-reg [7:0] data;
-reg tx_start;
-reg [7:0] tx_data;
-integer contador;
-always @(posedge clk) begin
-    if (tick_completos_receptor) begin
-        data <= salida_receptor;
-        tx_start <= 1'b1;
-        tx_data <= salida_receptor;
-    end
-    else begin
-        tx_start <= 1'b0;
-        tx_data <= 8'b0;
-    end
-    if (data) contador <= contador + 1;
-end
-
-
-assign o_leds = data;
-assign comienzo_transmicion = tx_start;
-assign entrada_transmisor = tx_data;
+//reg [7:0] data;
+//reg tx_start;
+//reg [7:0] tx_data;
+//integer contador;
+//always @(posedge clk) begin
+//    if (tick_completos_receptor) begin
+//        data <= salida_receptor;
+//        tx_start <= 1'b1;
+//        tx_data <= salida_receptor;
+//    end
+//    else begin
+//        tx_start <= 1'b0;
+//        tx_data <= 8'b0;
+//    end
+//    if (data) contador <= contador + 1;
+//end
 
 /*-----------------------------------------------------------------------------------*/
 //INSTANCIANDO LA INTERFAZ
-/* debug # 
+debug # 
 ( 
     .NB(32),     
     .DATA_BITS(8)    
@@ -93,9 +88,9 @@ assign entrada_transmisor = tx_data;
      .i_mips_pc(32'd65443),
     //------------------salidas------------------//
     .o_uart_tx_ready(comienzo_transmicion), //El comieno de la trasmision es cuando la interfaz alu este vacia      ESTE ES UNICO QUE TENGO DUDA DINOSAURIO
-    .o_uart_tx_data(entrada_transmisor),  //señal que va a salir de la interfaz hacia el modulo que le sigue
-    .o_state_debug()
-);*/
+    .o_uart_tx_data(entrada_transmisor_wire),  //señal que va a salir de la interfaz hacia el modulo que le sigue
+    .o_state_debug(o_leds[3:0])
+);
 
 
 /*-----------------------------------------------------------------------------------*/
@@ -111,7 +106,7 @@ transmisor_1
 	.reset(reset),  
 	.comienzo_TX(comienzo_transmicion),
 	.senial_generadorTick(senial_tick),  
-	.entrada_transmisor(entrada_transmisor),
+	.entrada_transmisor(entrada_transmisor_wire),
 	
 	//------------------salidas------------------// 
 	.senial_ticks_completos(tick_completos_transmisor), //rd_a_tx_done_tick ANTES ESTABA ESTA VARIABLE ELLOS USABAN 2  REG DIFERENTES PARA EL DONE
