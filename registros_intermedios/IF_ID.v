@@ -6,12 +6,12 @@ module IF_ID
     )
     (
         input   wire                        i_clk,
+        input   wire                        i_step,
         input   wire                        i_reset,
         //input   wire                        i_IF_ID_Write, // hazard unit
         input   wire    [NBITS-1:0]         i_pc4,
         //input   wire    [NBITS-1:0]         i_pc8,
         input   wire    [NBITS-1:0]         i_Instruction,
-        input   wire                        i_step,
         output  wire    [NBITS-1:0]         o_pc4,
         //output  wire    [NBITS-1:0]         o_pc8,
         output  wire    [NBITS-1:0]         o_instruction
