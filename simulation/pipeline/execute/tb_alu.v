@@ -19,7 +19,8 @@ module tb_ALU;
       .o_cero(o_cero),
       .o_result(o_result)
   );
-    reg [NB-1:0] expected;
+
+  reg [NB-1:0] expected;
 
   // Test cases
   initial begin
@@ -37,16 +38,18 @@ module tb_ALU;
     i_data_a = 32'hA5A5A5A5;
     i_data_b = 32'h5A5A5A5A;
     i_operation = `AND;
+    expected = i_data_a & i_data_b;
     #10;
-    if (o_result !== (i_data_a & i_data_b) || o_cero !== 1) begin
+    if (o_result !== expected || o_cero !== 1) begin
       $display("Test AND failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
     end
 
     // Test OR operation
     i_operation = `OR;
+    expected = i_data_a | i_data_b;
     #10;
-    if (o_result !== (i_data_a | i_data_b) || o_cero !== 0) begin
+    if (o_result !== expected || o_cero !== 0) begin
       $display("Test OR failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
     end
@@ -55,8 +58,9 @@ module tb_ALU;
     i_data_a = 32'h00000001;
     i_data_b = 32'h00000001;
     i_operation = `ADD;
+    expected = i_data_a + i_data_b;
     #10;
-    if (o_result !== (i_data_a + i_data_b) || o_cero !== 0) begin
+    if (o_result !== expected || o_cero !== 0) begin
       $display("Test ADD failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
     end
@@ -65,8 +69,9 @@ module tb_ALU;
     i_data_a = 32'h00000002;
     i_data_b = 32'h00000001;
     i_operation = `SUB;
+    expected = i_data_a - i_data_b;
     #10;
-    if (o_result !== (i_data_a - i_data_b) || o_cero !== 0) begin
+    if (o_result !== expected || o_cero !== 0) begin
       $display("Test SUB failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
     end
@@ -75,8 +80,9 @@ module tb_ALU;
     i_data_a = 32'h00000001;
     i_data_b = 32'h00001234;
     i_operation = `SLT;
+    expected = i_data_a < i_data_b ? 1 : 0;
     #10;
-    if (o_result !== (i_data_a < i_data_b ? 1 : 0) || o_cero !== 0) begin
+    if (o_result !== expected || o_cero !== 0) begin
       $display("Test SLT failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
     end
@@ -85,16 +91,18 @@ module tb_ALU;
     i_data_a = 32'h23FBA5A5;
     i_data_b = 32'hCA2ACC5A;
     i_operation = `NOR;
+    expected = ~(i_data_a | i_data_b);
     #10;
-    if (o_result !== ~(i_data_a | i_data_b) || o_cero !== 0) begin
+    if (o_result !== expected || o_cero !== 0) begin
       $display("Test NOR failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
     end
 
     // Test XOR operation
     i_operation = `XOR;
+    expected = i_data_a ^ i_data_b;
     #10;
-    if (o_result !== (i_data_a ^ i_data_b) || o_cero !== 0) begin
+    if (o_result !== expected || o_cero !== 0) begin
       $display("Test XOR failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
     end
@@ -103,16 +111,18 @@ module tb_ALU;
     i_data_a = 32'h00000002;
     i_data_b = 32'h00010001;
     i_operation = `SLL;
+    expected = i_data_b << i_data_a;
     #10;
-    if (o_result !== (i_data_b << i_data_a) || o_cero !== 0) begin
+    if (o_result !== expected || o_cero !== 0) begin
       $display("Test SLL failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
     end
 
     // Test SRL operation
     i_operation = `SRL;
+    expected = i_data_b >> i_data_a;
     #10;
-    if (o_result !== (i_data_b >> i_data_a) || o_cero !== 0) begin
+    if (o_result !== expected || o_cero !== 0) begin
       $display("Test SRL failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
     end
@@ -121,8 +131,8 @@ module tb_ALU;
     i_data_a = 32'h00000002;
     i_data_b = 32'h80000004;
     i_operation = `SRA;
-    #10;
     expected = $signed(i_data_b) >>> i_data_a;
+    #10;
     if (o_result !== expected || o_cero !== 0) begin
       $display("Test SRA failed: o_result=%h, o_cero=%b", o_result, o_cero);
       $finish;
