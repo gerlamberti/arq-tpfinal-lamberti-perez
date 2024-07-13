@@ -44,7 +44,7 @@ module instruction_memory
 
     // Leer el valor de la tabla de búsqueda en función de la dirección
     always @(*) begin
-        o_instruction = memory[i_pc];
+        o_instruction = memory[i_pc [31:2]];
     end
 
 

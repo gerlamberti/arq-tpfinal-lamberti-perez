@@ -3,7 +3,8 @@ module TOP_debug
 #( 
     parameter ancho_dato = 8,
     parameter BAUD_RATE = 9600, //velocidad tipica 
-    parameter FREC_CLOCK_MHZ = 100
+    parameter FREC_CLOCK_MHZ = 100,
+    parameter NB = 32
 )
 (
     /*-----Entradas al modulo-----*/
@@ -22,6 +23,8 @@ wire tick_completos_transmisor;
 wire comienzo_transmicion;
 wire [ancho_dato-1:0] salida_receptor;//?????????????????????????????????????????
 wire [ancho_dato-1:0] entrada_transmisor_wire;//?????????????????????????????????????????
+wire step;
+wire [NB-1:0] mips_pc;
 /*-----------------------------------------------------------------------------------*/
 // instanciando el generador de baudio 
 GeneradorDeBaudios #
@@ -55,22 +58,6 @@ receptor_1
 	.senial_ticks_completos(tick_completos_receptor),
 	.salida_receptor(salida_receptor)//salida de datos hacia la interfaz
 );
-//reg [7:0] data;
-//reg tx_start;
-//reg [7:0] tx_data;
-//integer contador;
-//always @(posedge clk) begin
-//    if (tick_completos_receptor) begin
-//        data <= salida_receptor;
-//        tx_start <= 1'b1;
-//        tx_data <= salida_receptor;
-//    end
-//    else begin
-//        tx_start <= 1'b0;
-//        tx_data <= 8'b0;
-//    end
-//    if (data) contador <= contador + 1;
-//end
 
 /*-----------------------------------------------------------------------------------*/
 //INSTANCIANDO LA INTERFAZ
@@ -85,13 +72,25 @@ debug #
 	 .i_uart_rx_ready(tick_completos_receptor), // EN .salida_receptor     DE LA INSTANCIACION DEL RECEPTOR HAY QUE PONER EL MUSMO PARAMETRO.    
 	 .i_uart_rx_data(salida_receptor),//salida del receptor OKEY
 	 .i_uart_tx_done(tick_completos_transmisor),//EL FIN DE TRANSMISION SE DA CUANDO LOS TICKS ESTAN COMPLETOS POR LO TANTO SE PONE EL MISMO PARAMETRO EN                                                             
-     .i_mips_pc(32'd65443),
+     .i_mips_pc(mips_pc),
     //------------------salidas------------------//
     .o_uart_tx_ready(comienzo_transmicion), //El comieno de la trasmision es cuando la interfaz alu este vacia      ESTE ES UNICO QUE TENGO DUDA DINOSAURIO
     .o_uart_tx_data(entrada_transmisor_wire),  //señal que va a salir de la interfaz hacia el modulo que le sigue
+    .o_step(step),
     .o_state_debug(o_leds[3:0])
 );
 
+IF #(
+    .NB(32),
+    .TAM_I(256)
+)(
+    .i_clk(clk),
+    .i_step(step),
+    .i_reset(reset),
+    .i_pc_write(1),
+    .o_instruction(mips_pc)
+//    .o_IF_pc(mips_pc)
+);
 
 /*-----------------------------------------------------------------------------------*/
 //INSTANCIANDO EL TRANSMISOR
