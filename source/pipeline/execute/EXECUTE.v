@@ -5,7 +5,7 @@ module EXECUTE
         parameter   NBITS           = 32,
         parameter   ALUOP           = 4,
         parameter   NB_OP           = 4,
-        parameter   REGS            = 5,
+        parameter   REGS            = 5
     )
     (
         input  wire      [NBITS-1:0]           i_id_extension,
