@@ -1,6 +1,7 @@
 // Definciones de constantes para la ALU
+// Ver pag 316 patterson
 `define AND 4'b0000
-`define OR  4'b0001
+`define OR 4'b0001
 `define ADD 4'b0010
 `define SUB 4'b0110
 `define XOR 4'b1101

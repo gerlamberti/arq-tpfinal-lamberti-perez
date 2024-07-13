@@ -3,11 +3,11 @@
 module tb_ALU;
 
   parameter NB = 32;
-  parameter NB_OP = 4;
+  parameter NB_ALU_OP = 4;
 
   reg [NB-1:0] i_data_a;
   reg [NB-1:0] i_data_b;
-  reg [NB_OP-1:0] i_operation;
+  reg [NB_ALU_OP-1:0] i_operation;
 
   wire o_cero;
   wire [NB-1:0] o_result;
@@ -135,6 +135,14 @@ module tb_ALU;
     #10;
     if (o_result !== expected || o_cero !== 0) begin
       $display("Test SRA failed: o_result=%h, o_cero=%b", o_result, o_cero);
+      $finish;
+    end
+
+    #10;
+    // Test que verifica qué pasa con una operación no válida
+    i_operation = 4'hX;
+    if (o_result !== -1) begin
+      $display("Test failed: o_result=%h", o_result);
       $finish;
     end
 
