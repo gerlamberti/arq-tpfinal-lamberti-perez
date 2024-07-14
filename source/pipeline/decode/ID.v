@@ -5,6 +5,7 @@ module ID #(
     parameter   REGS      = 5,
     parameter   INBITS    = 16,
     parameter   CTRLNB    = 6;
+    parameter   TAM_REG   = 32;
 )(
     input   wire                            i_clk,
     input   wire                            i_reset,
@@ -39,7 +40,7 @@ wire     [INBITS-1:0]           i_id_inmediate; // este - ID
 // wire     [NB-1:0]               ID_Reg_Debug;
 
 reg     [REGS-1:0]             i_tx_dir_debug; // este - ID desde debug
-
+reg     [1:0]                  ExtensionMode;
 // UC
 assign ID_InstrControl  =    i_Instruction    [NB-1:NB-CTRLNB];
 assign i_Special        =    i_Instruction    [CTRLNB-1:0] ;
@@ -70,6 +71,7 @@ u_Control_Unidad
     .o_ALUOp                    (o_ALUop),
     // .o_MemWrite                 (ctl_unidad_mem_write       ),
     .o_ALUSrc                   (o_ALUSrc),
+    .o_ExtensionMode            (ExtensionMode)
     // .o_RegWrite                 (ctl_unidad_regWrite       ),
     // .o_ExtensionMode            (ctl_unidad_extend_mode  ),
     // .o_TamanoFiltro             (ctl_unidad_size_filter   ),
@@ -79,6 +81,43 @@ u_Control_Unidad
     // .o_JALR                     (ctl_unidad_jalR           ),
     // .o_HALT                     (ctl_unidad_halt           )
 );
+
+    register_file
+    #(
+        .REGS        (REGS),
+        .NB          (NB),
+        .TAM         (TAM_REG)
+    )
+    u_register_file
+    (
+        .i_clk               (i_clk),
+        .i_reset             (i_reset),
+        .i_step              (i_step),
+        // .i_RegWrite          (i_mem_wb_regwrite),
+        .i_dir_rs            (i_dir_rs),
+        .i_dir_rt            (i_dir_rt),
+        .i_RegDebug          (i_select_reg_dir),
+        // .i_RD                (i_wb_dir_rd),
+        // .i_DatoEscritura     (i_wb_write),
+        .o_data_rs           (o_data_rs),
+        .o_data_rt           (o_data_rt),
+        .o_RegDebug          (o_data_tx_debug)
+
+    );
+  
+  
+    Extensor_Signo
+    #(
+        .i_NB                 (INBITS),
+        .e_NB                 (INBITS),
+        .o_NB                 (NB)
+    )
+    u_Extensor_Signo
+    (
+        .i_id_inmediate         (i_id_inmediate),
+        .i_extension_mode       (ExtensionMode),
+        .o_extensionresult      (o_extensionresult)
+    );
 
 
 endmodule
