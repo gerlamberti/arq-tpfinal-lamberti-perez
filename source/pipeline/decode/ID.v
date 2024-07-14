@@ -15,7 +15,6 @@ module ID #(
     output  wire     [NB-1:0]               o_data_a,
     output  wire     [NB-1:0]               o_data_b,
     output  wire     [NB-1:0]               o_data_tx_debug,
-    // output  wire     [1  : 0]               o_ALUop,
     output  wire                            o_alu_src,
     output  wire     [NB-1:0]               o_extension_result,
     output  wire     [CTRLNB-1:0]           o_intruction_funct_code,

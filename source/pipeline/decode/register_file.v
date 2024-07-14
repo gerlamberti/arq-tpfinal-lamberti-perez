@@ -9,13 +9,10 @@ module register_file
     (
         input   wire                        i_clk,
         input   wire                        i_reset,
-        // input   wire                        i_RegWrite,
         input   wire                        i_step,
         input   wire    [REGS-1:0]          i_dir_rs, //Leer registro 1
         input   wire    [REGS-1:0]          i_dir_rt, //Leer registro 2
-        // input   wire    [REGS-1:0]          i_RD, //Escribir registro
         input   wire    [REGS-1:0]          i_RegDebug, //Leer registro debug
-        // input   wire    [NBITS-1:0]         i_DatoEscritura, //Escribir dato
         output  reg     [NB-1:0]         o_data_rs, // Dato leido 1
         output  reg     [NB-1:0]         o_data_rt, // Dato leido 2
         output  reg     [NB-1:0]         o_RegDebug
@@ -42,16 +39,13 @@ module register_file
         o_RegDebug      <=  memory[i_RegDebug];
     end
 
-// raro ojo aca
-    always @(negedge i_clk )
+
+    always @(posedge i_clk )
     begin
         if(i_reset) begin
             for (i = 0; i < TAM; i = i + 1) begin
                 memory[i] <= i;
             end
-        // end else if(i_RegWrite & i_step)
-        // begin
-        //     memory[i_RD] <= i_DatoEscritura ;
         end
     end
 endmodule
