@@ -6,7 +6,8 @@ module control_unit #(
         input   wire    [NBITS-1:0]   i_Instruction,
         input   wire    [NBITS-1:0]   i_Special,
         output  wire    [1   :   0]   o_ALUop,
-        output  wire                  o_ALUSrc
+        output  wire                  o_ALUSrc,
+        output  wire    [1   :   0]   o_ExtensionMode
     );
 
     localparam ADDI   = 6'b001000;
@@ -21,16 +22,20 @@ module control_unit #(
             begin
                 ALUOp_Reg           <=  2'b00   ;
                 ALUSrc_Reg          <=  1'b1    ;
+                ExtensionMode_Reg   <=  2'b00   ;
             end
 
             ANDI:
             begin
                 ALUOp_Reg           <=  2'b11   ;
                 ALUSrc_Reg          <=  1'b1    ;
+                ExtensionMode_Reg   <=  2'b01   ;
             end
         endcase
     end
 
     assign  o_ALUSrc        =   ALUSrc_Reg;
     assign  o_ALUOp         =   ALUOp_Reg;
+    assign  o_ExtensionMode =   ExtensionMode_Reg;
+
 endmodule
