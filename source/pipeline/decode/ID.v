@@ -10,6 +10,7 @@ module ID #(
     input   wire                            i_reset,
     input   wire                            i_step,
     input   wire     [NB-1:0]               i_Instruction,
+    input   wire     [REGS-1:0]             i_select_reg_dir, //desde debug - i_tx_dir_debug
     // input   wire                            i_mem_wb_regwrite,
     // input   wire     [REGS-1:0]             i_dir_rs, // este
     // input   wire     [REGS-1:0]             i_dir_rt, // este
@@ -21,22 +22,35 @@ module ID #(
     // input   wire     [NBITS-1:0]            i_id_expc4,
     // input   wire     [INBITS-1:0]           i_id_inmediate, // este
     // input   wire     [TNBITS-1:0]           i_rctrl_extensionmode,
+    // output  wire     [NBITS-1:0]            o_id_jump,  
     output  wire     [NB-1:0]               o_data_rs,
     output  wire     [NB-1:0]               o_data_rt,
-    output  wire     [NBITS-1:0]            o_data_tx_debug,
-    //output  wire     [NBITS-1:0]            o_id_jump,  
-    output  wire     [NBITS-1:0]            o_extensionresult
+    output  wire     [NB-1:0]               o_data_tx_debug,
+    output  wire     [1  : 0]               o_ALUop,
+    output  wire                            o_ALUSrc,
+    output  wire     [NB-1:0]               o_extensionresult
 );
 
-wire     [REGS-1:0]             i_dir_rs; // este
-wire     [REGS-1:0]             i_dir_rt; // este
-wire     [REGS-1:0]             i_tx_dir_debug; //desde debug
-wire     [CTRLNB-1:0]           i_Special;
-wire     [CTRLNB-1:0]           ID_InstrControl;
-wire     [INBITS-1:0]           i_id_inmediate;
+wire     [REGS-1:0]             i_dir_rs; // este - ID
+wire     [REGS-1:0]             i_dir_rt; // este - ID
+wire     [CTRLNB-1:0]           i_Special; // este UC
+wire     [CTRLNB-1:0]           ID_InstrControl; // este UC
+wire     [INBITS-1:0]           i_id_inmediate; // este - ID
+// wire     [NB-1:0]               ID_Reg_Debug;
 
-assign ID_InstrControl  =    i_Instruction     [NB-1:NB-CTRLNB];
-assign i_Special        =    i_Instruction     [CTRLNB-1:0] ;
+reg     [REGS-1:0]             i_tx_dir_debug; // este - ID desde debug
+
+// UC
+assign ID_InstrControl  =    i_Instruction    [NB-1:NB-CTRLNB];
+assign i_Special        =    i_Instruction    [CTRLNB-1:0] ;
+
+// DECODE
+assign i_id_inmediate   =    i_Instruction    [INBITS-1:0];  
+assign i_dir_rs         =    i_Instruction    [INBITS+REGS+REGS-1:INBITS+REGS];//INBITS+RT+RS-1=16+5+5-1=25; INBITS+RT=16+5=21; [25-21]
+assign i_dir_rt         =    i_Instruction    [INBITS+REGS-1:INBITS];//INBITS+RT-1=16+5-1=20; INBITS=16; [20-16]
+// assign ID_Reg_rd_i         =    i_Instruction    [INBITS-1:INBITS-REGS]; //INBITS-1=16-1=15; INBITS-RD=16-5=11; [15-11]
+// assign o_data_reg_file     =    ID_Reg_Debug; Salida del TOP Mips a la DEBUG UNIT
+
 
 Control_Unidad
 #(
@@ -53,9 +67,9 @@ u_Control_Unidad
     // .o_NBranch                  (ctl_unidad_Nbranch        ),
     // .o_MemRead                  (ctl_unidad_mem_read        ),
     // .o_MemToReg                 (ctl_unidad_mem_to_reg),
-    .o_ALUOp                    (ctl_unidad_alu_op),
+    .o_ALUOp                    (o_ALUop),
     // .o_MemWrite                 (ctl_unidad_mem_write       ),
-    .o_ALUSrc                   (ctl_unidad_alu_src),
+    .o_ALUSrc                   (o_ALUSrc),
     // .o_RegWrite                 (ctl_unidad_regWrite       ),
     // .o_ExtensionMode            (ctl_unidad_extend_mode  ),
     // .o_TamanoFiltro             (ctl_unidad_size_filter   ),
