@@ -4,8 +4,8 @@ module ID #(
     parameter   NB        = 32,
     parameter   REGS      = 5,
     parameter   INBITS    = 16,
-    parameter   CTRLNB    = 6;
-    parameter   TAM_REG   = 32;
+    parameter   CTRLNB    = 6,
+    parameter   TAM_REG   = 32
 )(
     input   wire                            i_clk,
     input   wire                            i_reset,
@@ -39,8 +39,10 @@ wire     [CTRLNB-1:0]           ID_InstrControl; // este UC
 wire     [INBITS-1:0]           i_id_inmediate; // este - ID
 // wire     [NB-1:0]               ID_Reg_Debug;
 
-reg     [REGS-1:0]             i_tx_dir_debug; // este - ID desde debug
-reg     [1:0]                  ExtensionMode;
+reg     [REGS-1:0]              i_tx_dir_debug; // este - ID desde debug
+wire     [1:0]                  ExtensionMode;
+wire     [1:0]                  o_ALUop;
+
 // UC
 assign ID_InstrControl  =    i_Instruction    [NB-1:NB-CTRLNB];
 assign i_Special        =    i_Instruction    [CTRLNB-1:0] ;
@@ -53,7 +55,7 @@ assign i_dir_rt         =    i_Instruction    [INBITS+REGS-1:INBITS];//INBITS+RT
 // assign o_data_reg_file     =    ID_Reg_Debug; Salida del TOP Mips a la DEBUG UNIT
 
 
-Control_Unidad
+control_unit
 #(
     .NB                      (CTRLNB)
 )
@@ -68,7 +70,7 @@ u_Control_Unidad
     // .o_NBranch                  (ctl_unidad_Nbranch        ),
     // .o_MemRead                  (ctl_unidad_mem_read        ),
     // .o_MemToReg                 (ctl_unidad_mem_to_reg),
-    .o_ALUOp                    (o_ALUop),
+    .o_ALUop                    (o_ALUop),
     // .o_MemWrite                 (ctl_unidad_mem_write       ),
     .o_ALUSrc                   (o_ALUSrc),
     .o_ExtensionMode            (ExtensionMode)

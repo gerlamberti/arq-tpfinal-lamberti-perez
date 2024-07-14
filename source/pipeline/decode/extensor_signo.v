@@ -11,7 +11,7 @@ module Extensor_Signo #(
         output  wire    [o_NB-1:0]     o_extensionresult
     );
     
-    reg     [o_NBITS-1:0] result_extension;
+    reg     [o_NB-1:0] result_extension;
 
     always @(*)
     begin

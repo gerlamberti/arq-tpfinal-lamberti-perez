@@ -3,8 +3,8 @@
 module control_unit #(
         parameter NB = 6
     )(
-        input   wire    [NBITS-1:0]   i_Instruction,
-        input   wire    [NBITS-1:0]   i_Special,
+        input   wire    [NB-1:0]   i_Instruction,
+        input   wire    [NB-1:0]   i_Special,
         output  wire    [1   :   0]   o_ALUop,
         output  wire                  o_ALUSrc,
         output  wire    [1   :   0]   o_ExtensionMode
@@ -15,6 +15,7 @@ module control_unit #(
 
     reg     [1:0]   ALUOp_Reg;
     reg             ALUSrc_Reg;
+    reg     [1:0]   ExtensionMode_Reg;
 
     always @(*) begin
         case(i_Instruction)
