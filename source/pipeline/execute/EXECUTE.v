@@ -24,7 +24,7 @@ module EXECUTE #(
       .NB(NB)
   ) mux_alu_src (
       .i_data_a(i_data_b),
-      .i_data_b(i_immediate),
+      .i_data_b(i_immediate_extended),
       .i_sel(i_alu_src),
       .o_data(w_data_b_or_immediate)
   );
