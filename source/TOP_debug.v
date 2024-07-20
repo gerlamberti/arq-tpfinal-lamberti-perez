@@ -78,7 +78,7 @@ debug #
 ( 
     .NB(32),     
     .DATA_BITS(8)    
-)(
+) debug(
      //------------------entradas------------------//
      .i_clk(clk),
 	 .i_reset(reset),
