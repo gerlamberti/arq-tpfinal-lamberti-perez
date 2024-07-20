@@ -194,12 +194,29 @@ module tb_debug;
             if (test_uart_accumulator  !== random_registers[counter] ||
                 o_step          !== 0 // Por las dudas, nunca tiene que ser 1
             ) begin
-                $display("Debería haberse enviado el MIPS register %h", i_mips_register);
+                $display("Deberï¿½a haberse enviado el MIPS register %h", i_mips_register);
                 $finish;
             end  
         end
-        //
-         
+        // Testeo la Alu
+        i_mips_alu_result = $random();
+
+        test_uart_accumulator = 0;
+        @(posedge o_uart_tx_ready);
+        test_uart_accumulator[31:24] = o_uart_tx_data;
+        @(posedge o_uart_tx_ready);
+        test_uart_accumulator[23:16] = o_uart_tx_data;
+        @(posedge o_uart_tx_ready);
+        test_uart_accumulator[15:8] = o_uart_tx_data;
+        @(posedge o_uart_tx_ready);
+        test_uart_accumulator[7:0] = o_uart_tx_data;
+        
+        if (test_uart_accumulator  !== i_mips_alu_result ||
+            o_step          !== 0 // Por las dudas, nunca tiene que ser 1
+        ) begin
+            $display("Se deberia haber enviado el Alu result %h", i_mips_alu_result);
+            $finish;
+        end
      
         #200
         $finish;
