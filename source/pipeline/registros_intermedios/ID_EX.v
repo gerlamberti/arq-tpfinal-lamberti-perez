@@ -24,7 +24,7 @@ module ID_EX #(
     output reg [       NB-1:0] o_extension_result
 );
 
-  always @(negedge i_clk or i_reset) begin
+  always @(negedge i_clk) begin
     if (i_reset) begin
       o_instruction_funct_code <= 0;
       o_instruction_op_code <= 0;
