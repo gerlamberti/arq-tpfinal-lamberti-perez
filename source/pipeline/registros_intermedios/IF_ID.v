@@ -8,10 +8,10 @@ module IF_ID
         input   wire                        i_clk,
         input   wire                        i_step,
         input   wire                        i_reset,
-        input   wire    [NBITS-1:0]         i_pc4,
-        input   wire    [NBITS-1:0]         i_instruction,
-        output  reg    [NBITS-1:0]          o_pc4,
-        output  reg    [NBITS-1:0]          o_instruction
+        input   wire    [NB-1:0]         i_pc4,
+        input   wire    [NB-1:0]         i_instruction,
+        output  reg    [NB-1:0]          o_pc4,
+        output  reg    [NB-1:0]          o_instruction
     );
 
        
@@ -21,7 +21,7 @@ module IF_ID
             o_pc4           <=   {NB{1'b0}};
         end
         else if(i_step)begin //i_IF_ID_Write & i_step
-            o_instruction  <=   i_Instruction;
+            o_instruction  <=   i_instruction;
             o_pc4          <=   i_pc4;
         end
     end

@@ -13,9 +13,9 @@ module register_file
         input   wire    [REGS-1:0]          i_dir_rs, //Leer registro 1
         input   wire    [REGS-1:0]          i_dir_rt, //Leer registro 2
         input   wire    [REGS-1:0]          i_RegDebug, //Leer registro debug
-        output  reg     [NB-1:0]         o_data_rs, // Dato leido 1
-        output  reg     [NB-1:0]         o_data_rt, // Dato leido 2
-        output  reg     [NB-1:0]         o_RegDebug
+        output  reg     [NB-1:0]            o_data_rs, // Dato leido 1
+        output  reg     [NB-1:0]            o_data_rt, // Dato leido 2
+        output  reg     [NB-1:0]            o_RegDebug
     );
     
     reg     [NB-1:0]         memory[TAM-1:0];

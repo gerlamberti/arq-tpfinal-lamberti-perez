@@ -1,4 +1,6 @@
 `timescale 1ns/1ps
+`include "instruction_constants.vh"
+`include "decode_constants.vh"
 
 module control_unit #(
         parameter NB = 6
@@ -9,26 +11,28 @@ module control_unit #(
         output  reg    [1   :   0]      o_ExtensionMode
     );
 
-    localparam ADDI   = 6'b001000;
-    localparam ANDI   = 6'b001100;
+// `define ADDI_OPCODE 6'b001000
+// `define ANDI_OPCODE  6'b001100 
 
     always @(*) begin
         case(i_Instruction)
-            ADDI:
-            begin
-                o_ALUSrc          <=  1'b1    ;
-                o_ExtensionMode   <=  2'b00   ;
+            `RTYPE_OPCODE: begin
+                o_ALUSrc          <=  `RT_ALU_SRC;
+                o_ExtensionMode   <=  `SIGNED_EXTENSION_MODE;
             end
 
-            ANDI:
-            begin
-                o_ALUSrc          <=  1'b1    ;
-                o_ExtensionMode   <=  2'b01   ;
+            `ADDI_OPCODE: begin
+                o_ALUSrc          <=  `INMEDIATE_ALU_SRC;
+                o_ExtensionMode   <=  `SIGNED_EXTENSION_MODE;
             end
-            default:
-            begin    
-                o_ALUSrc          <=  1'b0    ;
-                o_ExtensionMode   <=  2'b00   ;
+
+            `ANDI_OPCODE: begin
+                o_ALUSrc          <=  `INMEDIATE_ALU_SRC;
+                o_ExtensionMode   <=  `UNSIGNED_EXTENSION_MODE;
+            end
+            default: begin    
+                o_ALUSrc          <=  `RT_ALU_SRC;
+                o_ExtensionMode   <=  `SIGNED_EXTENSION_MODE;
             end
         endcase
     end

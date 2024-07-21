@@ -11,7 +11,7 @@ module ID #(
     input   wire                            i_reset,
     input   wire                            i_step,
     input   wire     [NB-1:0]               i_instruction,
-    input   wire     [REGS-1:0]             i_select_reg_dir, //desde debug - i_tx_dir_debug
+    input   wire     [REGS-1:0]             i_mips_register_number, //desde debug - i_tx_dir_debug
     output  wire     [NB-1:0]               o_data_a,
     output  wire     [NB-1:0]               o_data_b,
     output  wire     [NB-1:0]               o_data_tx_debug,
@@ -27,7 +27,6 @@ wire     [CTRLNB-1:0]           w_i_special; // este UC
 wire     [CTRLNB-1:0]           w_id_instr_control; // este UC
 wire     [INBITS-1:0]           w_i_id_inmediate; // este - ID
 
-reg     [REGS-1:0]              w_i_tx_dir_debug; // este - ID desde debug
 wire     [1:0]                  w_extension_mode;
 wire     [1:0]                  w_o_ALUop;
 
@@ -67,7 +66,7 @@ u_Control_Unidad
         .i_step              (i_step),
         .i_dir_rs            (w_i_dir_rs),
         .i_dir_rt            (w_i_dir_rt),
-        .i_RegDebug          (i_select_reg_dir),
+        .i_RegDebug          (i_mips_register_number),
         .o_data_rs           (o_data_a),
         .o_data_rt           (o_data_b),
         .o_RegDebug          (o_data_tx_debug)
