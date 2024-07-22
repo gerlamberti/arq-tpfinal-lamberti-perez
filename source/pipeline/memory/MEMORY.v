@@ -21,7 +21,7 @@ module MEMORY #(
     output [NB-1:0] o_data_memory,
     output [NB-1:0] o_data_debug_memory
 );
-  wire [NB-1:0] w_data_to_write;
+  wire [NB-1:0] w_data_to_write,w_memory_read_data;
 
   memory_data #(
       .NB(NB),

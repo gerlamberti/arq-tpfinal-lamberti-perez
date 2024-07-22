@@ -8,10 +8,10 @@ module memory_data #(
     input i_clk,
     input i_reset,
     input i_step,
-    input [NB_ADDR : 0] i_alu_address, // TODO: revisar si Lo implementamos como un selector (no un address)
+    input [NB_ADDR -1 : 0] i_alu_address, // TODO: revisar si Lo implementamos como un selector (no un address)
     input [NB-1 : 0] i_data_to_write,
     input i_mem_write,
-    input [NB_ADDR : 0] i_debug_address,
+    input [NB_ADDR -1: 0] i_debug_address,
     input i_mem_read,
 
     output reg [NB-1 : 0] o_alu_address_data,

@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "memory_constants.vh"
 
 module tb_MEMORY;
 
@@ -66,22 +67,17 @@ module tb_MEMORY;
     // Test case 1: Write a word to memory and read back
     i_alu_address_result = 32'h00000004;
     i_data_b_to_write = 32'hA5A5A5A5;
-    i_word_size = 3'b010;  // Word size
-    i_mem_write = 1;
+    i_word_size = `COMPLETE_WORD;  // Word size
     i_step = 1;
+    @(posedge i_clk);
+    i_mem_write = 1;
     @(posedge i_clk);
     i_mem_write = 0;
-    i_step = 0;
     @(posedge i_clk);
-
     i_mem_read = 1;
-    i_step = 1;
-    @(posedge i_clk);
-    i_mem_read = 0;
-    i_step = 0;
-    @(posedge i_clk);
 
     expected_data_memory = 32'hA5A5A5A5;
+    @(posedge i_clk);
     if (o_data_memory !== expected_data_memory) begin
       $display("Test case 1 failed: o_data_memory = %h, expected = %h", o_data_memory,
                expected_data_memory);
@@ -93,7 +89,7 @@ module tb_MEMORY;
     // Test case 2: Write a halfword to memory and read back
     i_alu_address_result = 32'h00000008;
     i_data_b_to_write = 32'h0000BEEF;
-    i_word_size = 3'b001;  // Halfword size
+    i_word_size = `HALF_WORD;  // Halfword size
     i_mem_write = 1;
     i_step = 1;
     @(posedge i_clk);
@@ -120,7 +116,7 @@ module tb_MEMORY;
     // Test case 3: Write a byte to memory and read back
     i_alu_address_result = 32'h0000000C;
     i_data_b_to_write = 32'h0000007F;
-    i_word_size = 3'b000;  // Byte size
+    i_word_size = `BYTE_WORD;  // Byte size
     i_mem_write = 1;
     i_step = 1;
     @(posedge i_clk);
