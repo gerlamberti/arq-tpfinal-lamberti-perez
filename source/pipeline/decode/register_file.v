@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 
+// TODO: renombrar a regiter_memory
 module register_file #(
     parameter REGS = 5,
     parameter NB   = 32,
