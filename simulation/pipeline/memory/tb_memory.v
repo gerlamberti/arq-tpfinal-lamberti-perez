@@ -24,6 +24,7 @@ module tb_MEMORY;
   // Outputs
   wire [NB-1:0] o_data_memory;
   wire [NB-1:0] o_data_debug_memory;
+  wire [NB-1:0] o_debug_delete_adapter_write;
 
   // Expected values
   reg [NB-1:0] expected_data_memory;
@@ -42,7 +43,8 @@ module tb_MEMORY;
       .i_reg_write(i_reg_write),
       .i_signed(i_signed),
       .o_data_memory(o_data_memory),
-      .o_data_debug_memory(o_data_debug_memory)
+      .o_data_debug_memory(o_data_debug_memory),
+      .o_debug_delete_adapter_write(o_debug_delete_adapter_write)
   );
 
   // Clock generation
@@ -60,7 +62,7 @@ module tb_MEMORY;
     i_mem_write = 0;
     i_reg_write = 0;
     i_signed = 0;
-    #10;
+    @(posedge i_clk);
 
     i_reset = 0;
 
@@ -73,8 +75,8 @@ module tb_MEMORY;
     i_mem_write = 1;
     @(posedge i_clk);
     i_mem_write = 0;
-    @(posedge i_clk);
     i_mem_read = 1;
+    @(posedge i_clk);
 
     expected_data_memory = 32'hA5A5A5A5;
     @(posedge i_clk);
@@ -85,50 +87,38 @@ module tb_MEMORY;
     end else begin
       $display("Test case 1 passed: o_data_memory = %h", o_data_memory);
     end
+    @(posedge i_clk);
 
     // Test case 2: Write a halfword to memory and read back
     i_alu_address_result = 32'h00000008;
-    i_data_b_to_write = 32'h0000BEEF;
+    i_data_b_to_write = 32'hAAAABEEF;
     i_word_size = `HALF_WORD;  // Halfword size
     i_mem_write = 1;
-    i_step = 1;
-    @(posedge i_clk);
-    i_mem_write = 0;
-    i_step = 0;
-    @(posedge i_clk);
-
-    i_mem_read = 1;
-    i_step = 1;
-    @(posedge i_clk);
     i_mem_read = 0;
-    i_step = 0;
     @(posedge i_clk);
-
+    i_mem_write = 1;
+    @(posedge i_clk);
+    i_mem_read = 1;
+    @(posedge i_clk);
+  
     expected_data_memory = 32'h0000BEEF;
     if (o_data_memory !== expected_data_memory) begin
       $display("Test case 2 failed: o_data_memory = %h, expected = %h", o_data_memory,
                expected_data_memory);
       $finish;
-    end else begin
-      $display("Test case 2 passed: o_data_memory = %h", o_data_memory);
     end
-
+    @(posedge i_clk);
     // Test case 3: Write a byte to memory and read back
     i_alu_address_result = 32'h0000000C;
-    i_data_b_to_write = 32'h0000007F;
+    i_data_b_to_write = 32'hAABBCC7F;
     i_word_size = `BYTE_WORD;  // Byte size
+    @(posedge i_clk);
     i_mem_write = 1;
-    i_step = 1;
+    i_mem_read = 0;
     @(posedge i_clk);
     i_mem_write = 0;
-    i_step = 0;
     @(posedge i_clk);
-
     i_mem_read = 1;
-    i_step = 1;
-    @(posedge i_clk);
-    i_mem_read = 0;
-    i_step = 0;
     @(posedge i_clk);
 
     expected_data_memory = 32'h0000007F;
@@ -136,8 +126,45 @@ module tb_MEMORY;
       $display("Test case 3 failed: o_data_memory = %h, expected = %h", o_data_memory,
                expected_data_memory);
       $finish;
-    end else begin
-      $display("Test case 3 passed: o_data_memory = %h", o_data_memory);
+    end
+    
+    @(posedge i_clk);
+    i_mem_read = 1;
+    i_mem_write = 0;
+    i_alu_address_result = 32'h0000004;
+    i_word_size = `BYTE_WORD;
+    @(posedge i_clk);
+    expected_data_memory = 32'h000000A5;
+    @(posedge i_clk);
+    if (o_data_memory !== expected_data_memory) begin
+      $display("Test case 4 failed: o_data_memory = %h, expected = %h", o_data_memory,
+               expected_data_memory);
+      $finish;
+    end
+    @(posedge i_clk);
+    i_mem_read = 1;
+    i_mem_write = 0;
+    i_alu_address_result = 32'h0000000C+1; // Esta desalineado, debería devolver lo mismo que el address C
+    i_word_size = `HALF_WORD;
+    @(posedge i_clk);
+    expected_data_memory = 32'h0000007F;
+    @(posedge i_clk);
+    if (o_data_memory !== expected_data_memory) begin
+      $display("Test case unaligned address failed: o_data_memory = %h, expected = %h", o_data_memory,
+               expected_data_memory);
+      $finish;
+    end
+    
+    @(posedge i_clk);
+    i_reset = 1;
+    @(posedge i_clk);
+    i_reset = 0;
+    expected_data_memory = 32'h00000000;
+    @(posedge i_clk);
+    if (o_data_memory !== expected_data_memory) begin
+      $display("Test case 5 failed: o_data_memory = %h, expected = %h", o_data_memory,
+               expected_data_memory);
+      $finish;
     end
 
     $display("All tests passed.");
