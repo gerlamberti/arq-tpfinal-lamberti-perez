@@ -15,12 +15,11 @@ module MEMORY #(
     input [NB-1:0] i_data_b_to_write,
     input [NB_SIZE_TYPE-1:0] i_word_size,
     input i_mem_write,
-    input i_reg_write,
     input i_branch,
     input i_cero,
     output [NB-1:0] o_data_memory,
     output [NB-1:0] o_data_debug_memory,
-    output          o_branch_zero,
+    output          o_branch_zero
 );
   
   wire [NB-1:0] w_data_to_write, w_memory_read_data;

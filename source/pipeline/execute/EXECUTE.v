@@ -49,9 +49,9 @@ module EXECUTE #(
   branch_addr #(
         .NB(NB)
   ) branch_addr (
-        .i_extension_result(i i_extension_result),
+        .i_extension_result(i_extension_result),
         .i_pc4(i_pc4),
         .o_branch_addr(o_branch_addr)
-  )
+  );
 
 endmodule

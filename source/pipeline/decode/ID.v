@@ -1,24 +1,32 @@
 `timescale 1ns / 1ps
 
 module ID #(
-    parameter NB      = 32,
-    parameter REGS    = 5,
-    parameter INBITS  = 16,
-    parameter CTRLNB  = 6,
-    parameter TAM_REG = 32
+    parameter NB           = 32,
+    parameter REGS         = 5,
+    parameter INBITS       = 16,
+    parameter CTRLNB       = 6,
+    parameter TAM_REG      = 32,
+    parameter NB_SIZE_TYPE = 3
 ) (
-    input  wire              i_clk,
-    input  wire              i_reset,
-    input  wire              i_step,
-    input  wire [    NB-1:0] i_instruction,
-    input  wire [  REGS-1:0] i_mips_register_number,   //desde debug - i_tx_dir_debug
-    output wire [    NB-1:0] o_data_a,
-    output wire [    NB-1:0] o_data_b,
-    output wire [    NB-1:0] o_mips_register_data,
-    output wire              o_alu_src,
-    output wire [    NB-1:0] o_extension_result,
-    output wire [CTRLNB-1:0] o_intruction_funct_code,
-    output wire [CTRLNB-1:0] o_intruction_op_code
+    input                       i_clk,
+    input                       i_reset,
+    input                       i_step,
+    input  [            NB-1:0] i_instruction,
+    input  [          REGS-1:0] i_mips_register_number,   //desde debug - i_tx_dir_debug
+    output [            NB-1:0] o_data_a,
+    output [            NB-1:0] o_data_b,
+    output [            NB-1:0] o_mips_register_data,
+    output [            NB-1:0] o_extension_result,
+    output [        CTRLNB-1:0] o_intruction_funct_code,
+    output [        CTRLNB-1:0] o_intruction_op_code,
+    // From control unit
+    output                      o_alu_src,
+    output                      o_mem_read,
+    output                      o_mem_write,
+    output                      o_reg_write,
+    output                      o_branch,
+    output                      o_jump,
+    output [NB_SIZE_TYPE-1 : 0] o_word_size
 );
 
   wire [  REGS-1:0] w_i_dir_rs;  // este - ID
@@ -47,7 +55,13 @@ module ID #(
       .i_Instruction  (w_id_instr_control),
       .i_Special      (w_i_special),
       .o_ALUSrc       (o_alu_src),
-      .o_ExtensionMode(w_extension_mode)
+      .o_ExtensionMode(w_extension_mode),
+      .o_mem_read     (o_mem_read),
+      .o_mem_write    (o_mem_write),
+      .o_reg_write    (o_reg_write),
+      .o_branch       (o_branch),
+      .o_jump         (o_jump),
+      .o_word_size    (o_word_size)
   );
 
   register_file #(

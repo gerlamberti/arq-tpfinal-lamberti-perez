@@ -26,6 +26,24 @@ module PIPELINE #(
   wire w_ex_alu_src;
   wire [NB-1:0] w_ex_data_a, w_ex_data_b, w_ex_extension_result;
   wire [NB-1:0] w_ex_alu_result;
+  wire [NB-1:0] w_id_pc4;
+  // Wires for ID stage
+  wire w_id_mem_read;
+  wire w_id_mem_write;
+  wire w_id_reg_write;
+  wire w_id_branch;
+  wire w_id_jump;
+  wire [NB_SIZE_TYPE-1:0] w_id_word_size;
+
+  // Wires for EX stage
+  wire [NB-1:0] w_ex_pc4;
+  wire w_ex_mem_read;
+  wire w_ex_mem_write;
+  wire w_ex_reg_write;
+  wire w_ex_branch;
+  wire w_ex_jump;
+  wire [NB_SIZE_TYPE-1:0] w_ex_word_size;
+  wire [NB-1:0] w_ex_branch_addr;
 
   // Wires for MEM stage
   wire w_mem_cero;
@@ -36,6 +54,9 @@ module PIPELINE #(
   wire w_mem_reg_write;
   wire [NB_SIZE_TYPE-1:0] w_mem_word_size;
   wire [NB-1:0] w_mem_data_memory;
+  wire w_branch_zero;
+  wire [NB-1:0] w_mem_branch_addr;
+  wire w_mem_branch;
 
   // Wires for WB stage
   wire w_wb_reg_write;
@@ -51,6 +72,8 @@ module PIPELINE #(
       .i_step(i_step),
       .i_reset(i_reset),
       .i_pc_write(1'b1),
+      .i_branch(w_branch_zero),
+      .i_branch_addr(w_mem_branch_addr),
       .o_instruction(w_if_instruction),
       .o_IF_pc(o_mips_pc),
       .o_IF_pc4(w_if_id_pc4)
@@ -65,7 +88,7 @@ module PIPELINE #(
       .i_reset(i_reset),
       .i_pc4(w_if_id_pc4),
       .i_instruction(w_if_instruction),
-      .o_pc4(),
+      .o_pc4(w_id_pc4),
       .o_instruction(w_id_instruction)
   );
 
@@ -85,10 +108,17 @@ module PIPELINE #(
       .o_data_a(w_id_data_a),
       .o_data_b(w_id_data_b),
       .o_mips_register_data(o_mips_register_data),
-      .o_alu_src(w_id_alu_src),
       .o_intruction_funct_code(w_id_instruction_funct_code),
       .o_intruction_op_code(w_id_instruction_op_code),
-      .o_extension_result(w_id_extension_result)
+      .o_extension_result(w_id_extension_result),
+      // Control unit
+      .o_alu_src(w_id_alu_src),
+      .o_mem_read(w_id_mem_read),
+      .o_mem_write(w_id_mem_write),
+      .o_reg_write(w_id_reg_write),
+      .o_branch(w_id_branch),
+      .o_jump(w_id_jump),
+      .o_word_size(w_id_word_size)
   );
 
   // ID/EX Pipeline Register
@@ -102,16 +132,31 @@ module PIPELINE #(
       .i_reset(i_reset),
       .i_instruction_funct_code(w_id_instruction_funct_code),
       .i_instruction_op_code(w_id_instruction_op_code),
-      .i_alu_src(w_id_alu_src),
       .i_data_a(w_id_data_a),
       .i_data_b(w_id_data_b),
       .i_extension_result(w_id_extension_result),
+      .i_pc4(w_id_pc4),
+      .i_alu_src(w_id_alu_src),
+      .i_mem_read(w_id_mem_read),
+      .i_mem_write(w_id_mem_write),
+      .i_reg_write(w_id_reg_write),
+      .i_branch(w_id_branch),
+      .i_jump(w_id_jump),
+      .i_word_size(w_id_word_size),
       .o_instruction_funct_code(w_ex_instruction_funct_code),
       .o_instruction_op_code(w_ex_instruction_op_code),
       .o_alu_src(w_ex_alu_src),
       .o_data_a(w_ex_data_a),
       .o_data_b(w_ex_data_b),
-      .o_extension_result(w_ex_extension_result)
+      .o_extension_result(w_ex_extension_result),
+
+      .o_pc4(w_ex_pc4),
+      .o_mem_read(w_ex_mem_read),
+      .o_mem_write(w_ex_mem_write),
+      .o_reg_write(w_ex_reg_write),
+      .o_branch(w_ex_branch),
+      .o_jump(w_ex_jump),
+      .o_word_size(w_ex_word_size)
   );
 
   // Execute (EX) stage
@@ -127,7 +172,9 @@ module PIPELINE #(
       .i_data_a(w_ex_data_a),
       .i_data_b(w_ex_data_b),
       .i_extension_result(w_ex_extension_result),
-      .o_cero(w_mem_cero),
+      .i_pc4(w_ex_pc4),
+      .o_cero(w_ex_cero),
+      .o_branch_addr(w_ex_branch_addr),
       .o_alu_result(w_ex_alu_result)
   );
 
@@ -142,17 +189,21 @@ module PIPELINE #(
       .i_cero(w_ex_cero),
       .i_alu_result(w_ex_alu_result),
       .i_data_b(w_ex_data_b),
-      .i_mem_read(0),  // TODO añadir cuando mergee PR de german
-      .i_mem_write(0),  // TODO añadir cuando mergee PR de german
-      .i_reg_write(0),  // TODO añadir cuando mergee PR de german
-      .i_word_size(`COMPLETE_WORD),  // TODO añadir cuando mergee PR de german
-      .o_cero(w_wb_cero),
+      .i_mem_read(w_ex_mem_read),
+      .i_mem_write(w_ex_mem_write),
+      .i_reg_write(w_ex_reg_write),
+      .i_word_size(w_ex_word_size),
+      .i_branch(w_ex_branch),
+      .i_branch_addr(w_ex_branch_addr),
       .o_alu_result(w_mem_alu_result),
       .o_data_b(w_mem_data_b),
       .o_mem_read(w_mem_mem_read),
       .o_mem_write(w_mem_mem_write),
       .o_reg_write(w_mem_reg_write),
-      .o_word_size(w_mem_word_size)
+      .o_word_size(w_mem_word_size),
+      .o_branch(w_mem_branch),
+      .o_cero(w_mem_cero),
+      .o_branch_addr(w_mem_branch_addr)
   );
 
   MEMORY #(
@@ -170,9 +221,11 @@ module PIPELINE #(
       .i_data_b_to_write(w_mem_data_b),
       .i_word_size(w_mem_word_size),
       .i_mem_write(w_mem_mem_write),
-      .i_reg_write(w_mem_reg_write),
+      .i_branch(w_mem_branch),
+      .i_cero(w_mem_cero),
       .o_data_memory(w_mem_data_memory),
-      .o_data_debug_memory(o_mips_data_memory)
+      .o_data_debug_memory(o_mips_data_memory),
+      .o_branch_zero(w_branch_zero)
   );
 
   MEM_WB #(
