@@ -87,89 +87,17 @@ module TOP_debug #(
 
   );
 
-  IF #(
-      .NB(32),
-      .TAM_I(256)
-  ) FETCH (
+
+  PIPELINE #(
+      .NB(NB)
+  ) pipeline (
       .i_clk(clk),
       .i_step(step),
       .i_reset(reset),
-      .i_pc_write(1),
-      .o_instruction(w_if_instruction),
-      .o_IF_pc(w_mips_pc),
-      .o_IF_pc4(w_if_id_pc4)
-  );
-
-  IF_ID #(
-      .NB(32)
-  ) intermedio_fetch_decode (
-      .i_clk(clk),
-      .i_step(step),
-      .i_reset(reset),
-      .i_pc4(w_if_id_pc4),
-      .i_instruction(w_if_instruction),
-      .o_pc4(),
-      .o_instruction(w_id_instruction)
-  );
-
-
-  ID #(
-      .NB     (32),
-      .REGS   (5),
-      .INBITS (16),
-      .CTRLNB (6),
-      .TAM_REG(32)
-  ) DECODE (
-      .i_clk(clk),
-      .i_step(step),
-      .i_reset(reset),
-      .i_instruction(w_id_instruction),
-      .i_mips_register_number(w_debug_mips_register_number),
-      .o_data_a(w_ID_data_a),
-      .o_data_b(w_ID_data_b),
-      .o_mips_register_data(w_mips_register_data),
-      .o_alu_src(w_ID_alu_src),
-      .o_intruction_funct_code(w_ID_instruction_funct_code),
-      .o_intruction_op_code(w_ID_instruction_op_code),
-      .o_extension_result(w_ID_extension_result)
-  );
-
-  ID_EX #(
-      .NB(32),
-      .NB_OPCODE(6),
-      .NB_FCODE(6)
-  ) Intermedio_decode_execute (
-      .i_clk(clk),
-      .i_step(step),
-      .i_reset(reset),
-      .i_instruction_funct_code(w_ID_instruction_funct_code),
-      .i_instruction_op_code(w_ID_instruction_op_code),
-      .i_alu_src(w_ID_alu_src),  // 0 data_b, 1 immediate
-      .i_data_a(w_ID_data_a),
-      .i_data_b(w_ID_data_b),
-      .i_extension_result(w_ID_extension_result),
-
-      .o_instruction_funct_code(w_EX_instruction_funct_code),
-      .o_instruction_op_code   (w_EX_instruction_op_code),
-      .o_alu_src               (w_EX_alu_src),                 // 0 data_b, 1 immediate
-      .o_data_a                (w_EX_data_a),
-      .o_data_b                (w_EX_data_b),
-      .o_extension_result      (w_EX_extension_result)
-  );
-  EXECUTE #(
-      .NB(32),
-      .NB_FCODE(6),
-      .NB_OPCODE(6),
-      .NB_ALU_OP(4)
-  ) EXECUTE (
-      .i_instruction_funct_code(w_EX_instruction_funct_code),
-      .i_instruction_op_code(w_EX_instruction_op_code),
-      .i_alu_src(w_EX_alu_src),  // 0 data_b, 1 immediate
-      .i_data_a(w_EX_data_a),
-      .i_data_b(w_EX_data_b),
-      .i_extension_result(w_EX_extension_result),  // Viene del decode, es el imm extendido
-      .o_cero(),
-      .o_alu_result(w_mips_alu_result)
+      .i_debug_mips_register_number(w_debug_mips_register_number),
+      .o_mips_pc(w_mips_pc),
+      .o_mips_alu_result(w_mips_alu_result),
+      .o_mips_register_data(w_mips_register_data)
   );
 
   /*-----------------------------------------------------------------------------------*/

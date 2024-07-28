@@ -20,13 +20,13 @@ module MEMORY #(
     input i_cero,
     output [NB-1:0] o_data_memory,
     output [NB-1:0] o_data_debug_memory,
-    output [NB-1:0] o_debug_delete_adapter_write,
     output          o_branch_zero,
 );
   
   wire [NB-1:0] w_data_to_write, w_memory_read_data;
-  assign o_debug_delete_adapter_write = w_data_to_write; 
+
   assign o_branch_zero = i_branch & i_cero;
+
 
   write_adapter #(
       .NB_DATA(NB),
@@ -38,7 +38,7 @@ module MEMORY #(
   );
 
   memory_data #(
-      .NB(NB),
+      .NB (NB),
       .TAM(TAM)
   ) memory_data (
       .i_clk(i_clk),
