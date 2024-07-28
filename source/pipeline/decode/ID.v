@@ -12,9 +12,11 @@ module ID #(
     input            i_reset,
     input            i_step,
     input [  NB-1:0] i_instruction,
-    input [REGS-1:0] i_mips_register_number,  //desde debug - i_tx_dir_debug
-    // TODO: Añadir la manera de escribir el registro
+    input [REGS-1:0] i_mips_register_number, //desde debug - i_tx_dir_debug
+
     input            i_wb_reg_write,
+    input [  NB-1:0] i_wb_reg_write_data,
+    input [REGS-1:0] i_wb_reg_dir,
 
     output [            NB-1:0] o_data_a,
     output [            NB-1:0] o_data_b,
@@ -27,6 +29,7 @@ module ID #(
     output                      o_mem_read,
     output                      o_mem_write,
     output                      o_reg_write,
+    output [          REGS-1:0] o_reg_dir_to_write,
     output                      o_branch,
     output                      o_jump,
     output [NB_SIZE_TYPE-1 : 0] o_word_size
@@ -41,10 +44,6 @@ module ID #(
   wire [       1:0] w_extension_mode;
   wire [       1:0] w_o_ALUop;
 
-  // UC
-  assign w_id_instr_control = i_instruction[NB-1:NB-CTRLNB];
-  assign w_i_special = i_instruction[CTRLNB-1:0];
-
   // DECODE
   assign w_i_id_inmediate = i_instruction[INBITS-1:0];
   assign w_i_dir_rs               =    i_instruction    [INBITS+REGS+REGS-1:INBITS+REGS];//INBITS+RT+RS-1=16+5+5-1=25; INBITS+RT=16+5=21; [25-21]
@@ -53,18 +52,18 @@ module ID #(
   assign o_intruction_funct_code = i_instruction[CTRLNB-1:0];
 
   control_unit #(
-      .NB(CTRLNB)
+      .NB(NB)
   ) u_Control_Unidad (
-      .i_Instruction  (w_id_instr_control),
-      .i_Special      (w_i_special),
-      .o_ALUSrc       (o_alu_src),
-      .o_ExtensionMode(w_extension_mode),
-      .o_mem_read     (o_mem_read),
-      .o_mem_write    (o_mem_write),
-      .o_reg_write    (o_reg_write),
-      .o_branch       (o_branch),
-      .o_jump         (o_jump),
-      .o_word_size    (o_word_size)
+      .i_instruction     (i_instruction),
+      .o_ALUSrc          (o_alu_src),
+      .o_ExtensionMode   (w_extension_mode),
+      .o_mem_read        (o_mem_read),
+      .o_mem_write       (o_mem_write),
+      .o_reg_write       (o_reg_write),
+      .o_reg_dir_to_write(o_reg_dir_to_write),
+      .o_branch          (o_branch),
+      .o_jump            (o_jump),
+      .o_word_size       (o_word_size)
   );
 
   register_file #(
@@ -72,16 +71,18 @@ module ID #(
       .NB  (NB),
       .TAM (TAM_REG)
   ) u_register_file (
-      .i_clk     (i_clk),
-      .i_reset   (i_reset),
-      .i_step    (i_step),
-      // TODO: falta el habilitado de escritura desde el WB
-      .i_dir_rs  (w_i_dir_rs),
-      .i_dir_rt  (w_i_dir_rt),
-      .i_RegDebug(i_mips_register_number),
-      .o_data_rs (o_data_a),
-      .o_data_rt (o_data_b),
-      .o_RegDebug(o_mips_register_data)
+      .i_clk          (i_clk),
+      .i_reset        (i_reset),
+      .i_step         (i_step),
+      .i_wb_reg_write (i_wb_reg_write),
+      .i_wb_write_data(i_wb_reg_write_data),
+      .i_wb_reg_dir   (i_wb_reg_dir),
+      .i_dir_rs       (w_i_dir_rs),
+      .i_dir_rt       (w_i_dir_rt),
+      .i_RegDebug     (i_mips_register_number),
+      .o_data_rs      (o_data_a),
+      .o_data_rt      (o_data_b),
+      .o_RegDebug     (o_mips_register_data)
 
   );
 

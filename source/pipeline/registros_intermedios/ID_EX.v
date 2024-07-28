@@ -4,7 +4,8 @@ module ID_EX #(
     parameter NB = 32,
     parameter NB_OPCODE = 6,
     parameter NB_FCODE = 6,
-    parameter NB_SIZE_TYPE = 3
+    parameter NB_SIZE_TYPE = 3,
+    parameter NB_REGS = 5
 ) (
     input                      i_clk,
     input                      i_step,
@@ -21,6 +22,7 @@ module ID_EX #(
     input                      i_mem_read,
     input                      i_mem_write,
     input                      i_reg_write,
+    input [       NB_REGS-1:0] i_reg_dir_to_write,
     input                      i_jump,
 
 
@@ -39,6 +41,7 @@ module ID_EX #(
     output reg                      o_mem_read,
     output reg                      o_mem_write,
     output reg                      o_reg_write,
+    output reg [       NB_REGS-1:0] o_reg_dir_to_write,
     output reg                      o_jump
 );
 
@@ -56,6 +59,7 @@ module ID_EX #(
       o_mem_read <= 0;
       o_mem_write <= 0;
       o_reg_write <= 0;
+      o_reg_dir_to_write <= 0;
       o_jump <= 0;
     end else begin
       if (i_step) begin
@@ -71,6 +75,7 @@ module ID_EX #(
         o_mem_read <= i_mem_read;
         o_mem_write <= i_mem_write;
         o_reg_write <= i_reg_write;
+        o_reg_dir_to_write <= i_reg_dir_to_write;
         o_jump <= i_jump;
       end
     end

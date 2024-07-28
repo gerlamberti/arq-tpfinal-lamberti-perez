@@ -2,7 +2,7 @@
 `include "memory_constants.vh"
 `define OVERRIDE_INSTRUCTIONS
 
-module tb_PIPELINE;
+module tb_PIPELINE_2nd_instruction;
 
   parameter NB = 32;
   parameter NB_SIZE_TYPE = 3;
@@ -70,31 +70,35 @@ module tb_PIPELINE;
 
     $display("Initial setup complete.");
     /***
-        ESTE TEST ES PARA LA PRIMERA INSTRUCCI�N NOM�S
-        memory[1] = {`ADDI_OPCODE, 5'd7, 5'd2, 16'hFBF2};  // $2 <-$1 + FFF2
+        ESTE TEST ES PARA LA SEGUNDA INSTRUCCI�N NOM�S
+        memory[2] = {`RTYPE_OPCODE, 5'd5, 5'd3, 5'd4, 5'b0, `ADD_FCODE};
+        ADD rd, rs, rt
+        ADD $4, $5, $3
+        $4 <- $5 + $3
+
     **/
     // Ponemos el step en alto y esperamos 1 clock
     i_step = 1;
-    @(posedge i_clk);
-    expected_mips_pc = 4;
-    expected_mips_alu_result = 32'h0;
-    if (o_mips_pc !== expected_mips_pc) $finish;
-    if (o_mips_alu_result !== expected_mips_alu_result) $finish;
-
+    @(o_mips_pc);  // PC = 4; Ciclo 1;
     @(o_mips_pc);  // PC = 8; Ciclo 2;
-    if (o_mips_pc !== 8) $finish;
     @(o_mips_pc);  // PC = 12; Ciclo 3;
-    i_debug_mips_register_number = 7;  // rs
+    @(o_mips_pc);  // PC = 16; Ciclo 4;
+    // Aca deberia ejecutarse la ALU de la segunda instruccion
+    expected_mips_pc = 16;
     #1;
-    expected_mips_pc = 12;
-    expected_mips_alu_result = $signed(16'hFBF2);  // si no lo separo as� no me toma la extension de signo
+    i_debug_mips_register_number = 5;
+    #1;
+    expected_mips_alu_result = o_mips_register_data;
+    #1;
+    i_debug_mips_register_number = 3;
+    #1;
     expected_mips_alu_result = expected_mips_alu_result + o_mips_register_data;
     if (o_mips_pc !== expected_mips_pc) $finish;
     if (o_mips_alu_result !== expected_mips_alu_result) $finish;
-    @(o_mips_pc);  // PC = 16; Ciclo 4;
     // Memory stage
-    // No deberia haber cambios
+    @(o_mips_pc);  // PC = 20; Ciclo 5;
     i_step = 0;  // Dejo en bajo para no alterar nada
+    // No deberia haber cambios
     for (i = 0; i < TAM_DATA_MEMORY; i = i + 1) begin
       #1;
       i_debug_address = i * 4;
@@ -102,16 +106,18 @@ module tb_PIPELINE;
       #1;
     end
     i_step = 1;
-    @(o_mips_pc);  // PC = 20; Ciclo 5;
+
+    @(o_mips_pc);  // PC = 24; Ciclo 6;
     // Write back
     // Aún no debería haber cambios en el registro
-    i_debug_mips_register_number = 2;  // rt
+    i_debug_mips_register_number = 4;
     #1;
-    expected_mips_register_data = 2;
+    expected_mips_register_data = 4;
     if (o_mips_register_data !== expected_mips_register_data) $finish;
-    @(o_mips_pc);  // PC = 24; Ciclo 6;
+
+    @(o_mips_pc);  // PC = 28; Ciclo 7;
     // Ahora si se deberia haber escrito el rt register
-    #1; // Espero que se actualice el valor.
+    #1;  // Espero que se actualice el valor.
     expected_mips_register_data = expected_mips_alu_result;
     if (o_mips_register_data !== expected_mips_register_data) $finish;
 

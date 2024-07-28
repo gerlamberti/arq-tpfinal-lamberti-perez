@@ -3,7 +3,8 @@
 
 module PIPELINE #(
     parameter NB = 32,
-    parameter NB_SIZE_TYPE = 3
+    parameter NB_SIZE_TYPE = 3,
+    parameter NB_REGS = 5
 ) (
     input i_clk,
     input i_step,
@@ -34,6 +35,7 @@ module PIPELINE #(
   wire w_id_branch;
   wire w_id_jump;
   wire [NB_SIZE_TYPE-1:0] w_id_word_size;
+  wire [NB_REGS-1:0] w_id_reg_dir_to_write;
 
   // Wires for EX stage
   wire [NB-1:0] w_ex_pc4;
@@ -44,6 +46,7 @@ module PIPELINE #(
   wire w_ex_jump;
   wire [NB_SIZE_TYPE-1:0] w_ex_word_size;
   wire [NB-1:0] w_ex_branch_addr;
+  wire [NB_REGS-1:0] w_ex_reg_dir_to_write;
 
   // Wires for MEM stage
   wire w_mem_cero;
@@ -57,12 +60,15 @@ module PIPELINE #(
   wire w_branch_zero;
   wire [NB-1:0] w_mem_branch_addr;
   wire w_mem_branch;
+  wire [NB_REGS-1:0] w_mem_reg_dir_to_write;
 
   // Wires for WB stage
   wire w_wb_reg_write;
   wire w_wb_mem_to_reg;
   wire [NB-1:0] w_wb_data_memory;
   wire [NB-1:0] w_wb_alu_address_result;
+  wire [NB-1:0] w_wb_data_to_register;
+  wire [NB_REGS-1:0] w_wb_reg_dir_to_write;
   // Instruction Fetch (IF) stage
   IF #(
       .NB(NB),
@@ -105,6 +111,9 @@ module PIPELINE #(
       .i_reset(i_reset),
       .i_instruction(w_id_instruction),
       .i_mips_register_number(i_debug_mips_register_number),
+      .i_wb_reg_write_data(w_wb_data_to_register),
+      .i_wb_reg_write(w_wb_reg_write),
+      .i_wb_reg_dir(w_wb_reg_dir_to_write),
       .o_data_a(w_id_data_a),
       .o_data_b(w_id_data_b),
       .o_mips_register_data(o_mips_register_data),
@@ -116,6 +125,7 @@ module PIPELINE #(
       .o_mem_read(w_id_mem_read),
       .o_mem_write(w_id_mem_write),
       .o_reg_write(w_id_reg_write),
+      .o_reg_dir_to_write(w_id_reg_dir_to_write),
       .o_branch(w_id_branch),
       .o_jump(w_id_jump),
       .o_word_size(w_id_word_size)
@@ -140,6 +150,7 @@ module PIPELINE #(
       .i_mem_read(w_id_mem_read),
       .i_mem_write(w_id_mem_write),
       .i_reg_write(w_id_reg_write),
+      .i_reg_dir_to_write(w_id_reg_dir_to_write),
       .i_branch(w_id_branch),
       .i_jump(w_id_jump),
       .i_word_size(w_id_word_size),
@@ -154,6 +165,7 @@ module PIPELINE #(
       .o_mem_read(w_ex_mem_read),
       .o_mem_write(w_ex_mem_write),
       .o_reg_write(w_ex_reg_write),
+      .o_reg_dir_to_write(w_ex_reg_dir_to_write),
       .o_branch(w_ex_branch),
       .o_jump(w_ex_jump),
       .o_word_size(w_ex_word_size)
@@ -192,6 +204,7 @@ module PIPELINE #(
       .i_mem_read(w_ex_mem_read),
       .i_mem_write(w_ex_mem_write),
       .i_reg_write(w_ex_reg_write),
+      .i_reg_dir_to_write(w_ex_reg_dir_to_write),
       .i_word_size(w_ex_word_size),
       .i_branch(w_ex_branch),
       .i_branch_addr(w_ex_branch_addr),
@@ -200,6 +213,7 @@ module PIPELINE #(
       .o_mem_read(w_mem_mem_read),
       .o_mem_write(w_mem_mem_write),
       .o_reg_write(w_mem_reg_write),
+      .o_reg_dir_to_write(w_mem_reg_dir_to_write),
       .o_word_size(w_mem_word_size),
       .o_branch(w_mem_branch),
       .o_cero(w_mem_cero),
@@ -235,10 +249,12 @@ module PIPELINE #(
       .i_step(i_step),
       .i_reset(i_reset),
       .i_reg_write(w_mem_reg_write),
+      .i_reg_dir_to_write(w_mem_reg_dir_to_write),
       .i_mem_to_reg(0),  // TODO: esperar que germancito lo haga
       .i_data_memory(w_mem_data_memory),
       .i_alu_address_result(w_mem_alu_result),
       .o_reg_write(w_wb_reg_write),
+      .o_reg_dir_to_write(w_wb_reg_dir_to_write),
       .o_mem_to_reg(w_wb_mem_to_reg),
       .o_data_memory(w_wb_data_memory),
       .o_alu_address_result(w_wb_alu_address_result)
@@ -252,7 +268,7 @@ module PIPELINE #(
       .i_mem_to_reg(w_wb_mem_to_reg),
       .i_mem_data(w_wb_data_memory),
       .i_alu_result(w_wb_alu_address_result),
-      .o_data_to_write_in_register()
+      .o_data_to_write_in_register(w_wb_data_to_register)
   );
 
 
