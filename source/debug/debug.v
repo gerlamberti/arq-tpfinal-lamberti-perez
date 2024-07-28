@@ -15,7 +15,7 @@ module debug #(
     input      [       NB-1:0] i_mips_pc,
     input      [       NB-1:0] i_mips_register,
     input      [       NB-1:0] i_mips_alu_result,
-    output     [   NB_REG-1:0] o_mips_register_number,
+    output     [   NB_REG-1:0] o_mips_register_number, // TODO: quitarle un bit a esto para que quede mas prolijo
     output     [DATA_BITS-1:0] o_uart_tx_data,
     output                     o_uart_tx_ready,
     output reg                 o_step,

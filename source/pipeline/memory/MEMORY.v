@@ -18,11 +18,9 @@ module MEMORY #(
     input i_mem_write,
     input i_reg_write,
     output [NB-1:0] o_data_memory,
-    output [NB-1:0] o_data_debug_memory,
-    output [NB-1:0] o_debug_delete_adapter_write
+    output [NB-1:0] o_data_debug_memory
 );
   wire [NB-1:0] w_data_to_write, w_memory_read_data;
-assign o_debug_delete_adapter_write = w_data_to_write; 
 
   write_adapter #(
       .NB_DATA(NB),
@@ -34,7 +32,7 @@ assign o_debug_delete_adapter_write = w_data_to_write;
   );
 
   memory_data #(
-      .NB(NB),
+      .NB (NB),
       .TAM(TAM)
   ) memory_data (
       .i_clk(i_clk),
