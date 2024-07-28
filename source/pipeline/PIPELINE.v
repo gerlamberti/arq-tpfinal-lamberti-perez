@@ -12,7 +12,8 @@ module PIPELINE #(
     input [NB-1:0] i_debug_address,
     output [NB-1:0] o_mips_pc,
     output [NB-1:0] o_mips_alu_result,
-    output [NB-1:0] o_mips_register_data
+    output [NB-1:0] o_mips_register_data,
+    output [NB-1:0] o_mips_data_memory
 );
 
   // Wires for inter-stage communication
@@ -34,8 +35,13 @@ module PIPELINE #(
   wire w_mem_mem_write;
   wire w_mem_reg_write;
   wire [NB_SIZE_TYPE-1:0] w_mem_word_size;
+  wire [NB-1:0] w_mem_data_memory;
 
   // Wires for WB stage
+  wire w_wb_reg_write;
+  wire w_wb_mem_to_reg;
+  wire [NB-1:0] w_wb_data_memory;
+  wire [NB-1:0] w_wb_alu_address_result;
   // Instruction Fetch (IF) stage
   IF #(
       .NB(NB),
@@ -164,10 +170,38 @@ module PIPELINE #(
       .i_data_b_to_write(w_mem_data_b),
       .i_word_size(w_mem_word_size),
       .i_mem_write(w_mem_mem_write),
-      .i_reg_write(w_mem_reg_write)
+      .i_reg_write(w_mem_reg_write),
+      .o_data_memory(w_mem_data_memory),
+      .o_data_debug_memory(o_mips_data_memory)
   );
 
-  
+  MEM_WB #(
+      .NB(NB)
+  ) mem_wb (
+      .i_clk(i_clk),
+      .i_step(i_step),
+      .i_reset(i_reset),
+      .i_reg_write(w_mem_reg_write),
+      .i_mem_to_reg(0),  // TODO: esperar que germancito lo haga
+      .i_data_memory(w_mem_data_memory),
+      .i_alu_address_result(w_mem_alu_result),
+      .o_reg_write(w_wb_reg_write),
+      .o_mem_to_reg(w_wb_mem_to_reg),
+      .o_data_memory(w_wb_data_memory),
+      .o_alu_address_result(w_wb_alu_address_result)
+  );
+
+
+  WRITE_BACK #(
+      .NB(NB),
+      .NB_REG(5)
+  ) write_back (
+      .i_mem_to_reg(w_wb_mem_to_reg),
+      .i_mem_data(w_wb_data_memory),
+      .i_alu_result(w_wb_alu_address_result),
+      .o_data_to_write_in_register()
+  );
+
 
 
 

@@ -12,10 +12,10 @@ module MEM_WB #(
     input [NB-1:0] i_data_memory,
     input [NB-1:0] i_alu_address_result,
 
-    output reg i_reg_write,
-    output reg i_mem_to_reg,
-    output reg [NB-1:0] i_data_memory,
-    output reg [NB-1:0] i_alu_address_result
+    output reg o_reg_write,
+    output reg o_mem_to_reg,
+    output reg [NB-1:0] o_data_memory,
+    output reg [NB-1:0] o_alu_address_result
 );
 
   always @(negedge i_clk) begin
