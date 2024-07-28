@@ -11,7 +11,7 @@ module control_unit #(
         output  reg                     o_mem_read,
         output  reg                     o_mem_write,
         output  reg                     o_reg_write,
-        output  reg                     o_beq,
+        output  reg                     o_branch,
         output  reg                     o_jump,
         output  reg    [1   :   0]      o_ExtensionMode,
         output  reg    [2   :   0]      o_word_size
@@ -30,7 +30,7 @@ module control_unit #(
                 o_mem_read        <=  1'b0;
                 o_mem_write       <=  1'b0 ;
                 o_reg_write       <=  1'b0 ;
-                o_beq             <=  1'b0 ;
+                o_branch             <=  1'b0 ;
                 o_jump            <=  1'b0 ;
                 o_word_size       <=  3'b000;
             end
@@ -41,7 +41,7 @@ module control_unit #(
                 o_mem_read        <=  1'b0;
                 o_mem_write       <=  1'b0;
                 o_reg_write       <=  1'b1;
-                o_beq             <=  1'b0 ;
+                o_branch             <=  1'b0 ;
                 o_jump            <=  1'b0 ;
                 o_word_size       <=  3'b000;
             end
@@ -52,7 +52,7 @@ module control_unit #(
                 o_mem_read        <=  1'b0;
                 o_mem_write       <=  1'b0;
                 o_reg_write       <=  1'b1;
-                o_beq             <=  1'b0 ;
+                o_branch             <=  1'b0 ;
                 o_jump            <=  1'b0 ;
                 o_word_size       <=  3'b000;
             end
@@ -62,7 +62,7 @@ module control_unit #(
                 o_mem_read        <=  1'b0;
                 o_mem_write       <=  1'b0;
                 o_reg_write       <=  1'b0;
-                o_beq             <=  1'b1 ;
+                o_branch             <=  1'b1 ;
                 o_jump            <=  1'b0 ;
                 o_word_size       <=  3'b000;
             end
@@ -72,7 +72,7 @@ module control_unit #(
                 o_mem_read        <=  1'b0;
                 o_mem_write       <=  1'b0;
                 o_reg_write       <=  1'b0;
-                o_beq             <=  1'b0 ;
+                o_branch             <=  1'b0 ;
                 o_jump            <=  1'b1 ;
                 o_word_size       <=  3'b000;
             end
@@ -82,7 +82,7 @@ module control_unit #(
                 o_mem_read        <=  1'b0;
                 o_mem_write       <=  1'b0 ;
                 o_reg_write       <=  1'b0 ;
-                o_beq             <=  1'b0 ;
+                o_branch             <=  1'b0 ;
                 o_jump            <=  1'b0 ;
                 o_word_size       <=  3'b000;
             end
