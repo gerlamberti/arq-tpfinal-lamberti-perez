@@ -8,11 +8,14 @@ module ID #(
     parameter TAM_REG      = 32,
     parameter NB_SIZE_TYPE = 3
 ) (
-    input                       i_clk,
-    input                       i_reset,
-    input                       i_step,
-    input  [            NB-1:0] i_instruction,
-    input  [          REGS-1:0] i_mips_register_number,   //desde debug - i_tx_dir_debug
+    input            i_clk,
+    input            i_reset,
+    input            i_step,
+    input [  NB-1:0] i_instruction,
+    input [REGS-1:0] i_mips_register_number,  //desde debug - i_tx_dir_debug
+    // TODO: Añadir la manera de escribir el registro
+    input            i_wb_reg_write,
+
     output [            NB-1:0] o_data_a,
     output [            NB-1:0] o_data_b,
     output [            NB-1:0] o_mips_register_data,
@@ -72,6 +75,7 @@ module ID #(
       .i_clk     (i_clk),
       .i_reset   (i_reset),
       .i_step    (i_step),
+      // TODO: falta el habilitado de escritura desde el WB
       .i_dir_rs  (w_i_dir_rs),
       .i_dir_rt  (w_i_dir_rt),
       .i_RegDebug(i_mips_register_number),
