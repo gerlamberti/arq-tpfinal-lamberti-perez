@@ -6,9 +6,14 @@ module register_file #(
     parameter NB   = 32,
     parameter TAM  = 32
 ) (
-    input  wire            i_clk,
-    input  wire            i_reset,
-    input  wire            i_step,
+    input wire i_clk,
+    input wire i_reset,
+    input wire i_step,
+
+    input            i_wb_reg_write,
+    input [  NB-1:0] i_wb_write_data,
+    input [REGS-1:0] i_wb_reg_dir,
+
     input  wire [REGS-1:0] i_dir_rs,    //Leer registro 1
     input  wire [REGS-1:0] i_dir_rt,    //Leer registro 2
     input  wire [REGS-1:0] i_RegDebug,  //Leer registro debug
@@ -17,10 +22,9 @@ module register_file #(
     output reg  [  NB-1:0] o_RegDebug
 );
 
-  reg     [NB-1:0] memory    [TAM-1:0];
+  reg     [NB-1:0] memory[TAM-1:0];
   reg     [NB-1:0] rs;
   reg     [NB-1:0] rt;
-  reg     [NB-1:0] Reg_Debug;
   integer          i;
 
   initial begin
@@ -31,16 +35,9 @@ module register_file #(
 
 
   always @(*) begin
-    if (i_dir_rs == 5 || i_dir_rt == 3) begin
-      o_data_rs  = 10;
-      o_data_rt  = 20;
-      o_RegDebug = memory[i_RegDebug];
-    end else begin
-      o_data_rs  = memory[i_dir_rs];
-      o_data_rt  = memory[i_dir_rt];
-      o_RegDebug = memory[i_RegDebug];
-    end
-
+    o_data_rs  = memory[i_dir_rs];
+    o_data_rt  = memory[i_dir_rt];
+    o_RegDebug = memory[i_RegDebug];
   end
 
 
@@ -48,6 +45,11 @@ module register_file #(
     if (i_reset) begin
       for (i = 0; i < TAM; i = i + 1) begin
         memory[i] <= i;
+      end
+    end
+    if (i_step) begin
+      if (i_wb_reg_write) begin
+        memory[i_wb_reg_dir] <= i_wb_write_data;
       end
     end
   end
