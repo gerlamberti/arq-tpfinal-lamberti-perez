@@ -12,8 +12,11 @@ module EXECUTE #(
     input       [       NB-1:0] i_data_a,
     input       [       NB-1:0] i_data_b,
     input       [       NB-1:0] i_extension_result,        // Viene del decode, es el imm extendido
+    input       [       NB-1:0] i_pc4,
     output wire                 o_cero,
-    output wire [       NB-1:0] o_alu_result
+    output wire [       NB-1:0] o_alu_result,
+    output wire [       NB-1:0] o_branch_addr
+
 );
 
   wire [NB-1:0] w_data_a, w_data_b_or_immediate;
@@ -42,5 +45,13 @@ module EXECUTE #(
       .o_cero(o_cero),
       .o_result(o_alu_result)
   );
+
+  branch_addr #(
+        .NB(NB)
+  ) branch_addr (
+        .i_extension_result(i i_extension_result),
+        .i_pc4(i_pc4),
+        .o_branch_addr(o_branch_addr)
+  )
 
 endmodule

@@ -1,10 +1,10 @@
 
 // Opcodes
-`define RTYPE_OPCODE 6'b000000
-`define ADDI_OPCODE 6'b001000
-`define ANDI_OPCODE  6'b001100 
-
-
+`define RTYPE_OPCODE    6'b000000
+`define ADDI_OPCODE     6'b001000
+`define ANDI_OPCODE     6'b001100 
+`define BEQ_OPCODE      6'b000100
+`define JUMP_OPCODE     6'b000010
 
 
 // Function codes for R-type instructions

@@ -8,10 +8,8 @@ module IF  #(
     input   wire                    i_step,
     input   wire                    i_reset,
     input   wire                    i_pc_write,
-    // input   wire                    i_instruction_write,
-    // input   wire    [NB-1:0]        i_new_write, // Nuevo PC - SACAR
-    // input   wire    [7 :  0]        i_address_memory_ins,
-    // input   wire    [NB-1:0]        i_instruction,
+    input                           i_branch,
+    input   [NB-1:0]                i_branch_addr,
     output  wire    [NB-1:0]        o_IF_pc,
     output  wire    [NB-1:0]        o_IF_pc4,
     output  wire    [NB-1:0]        o_IF_pc8,
@@ -68,6 +66,8 @@ module IF  #(
     u_mux_pc
     (
         .i_sumador_pc4  (pc4),
+        .i_branch       (i_branch),
+        .i_branch_addr  (i_branch_addr),
         .o_pc           (test_pc)
     );
 
