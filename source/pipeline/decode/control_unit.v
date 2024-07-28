@@ -34,7 +34,7 @@ module control_unit #(
         o_ExtensionMode    <= `SIGNED_EXTENSION_MODE;
         o_mem_read         <= 1'b0;
         o_mem_write        <= 1'b0;
-        o_reg_write        <= 1'b0;
+        o_reg_write        <= 1'b1;
         o_branch           <= 1'b0;
         o_jump             <= 1'b0;
         o_word_size        <= 3'b000;
