@@ -28,10 +28,12 @@ module ID #(
     output                      o_alu_src,
     output                      o_mem_read,
     output                      o_mem_write,
+    output                      o_mem_to_reg,
     output                      o_reg_write,
     output [          REGS-1:0] o_reg_dir_to_write,
     output                      o_branch,
     output                      o_jump,
+    output                      o_signed,
     output [NB_SIZE_TYPE-1 : 0] o_word_size
 );
 
@@ -59,10 +61,12 @@ module ID #(
       .o_ExtensionMode   (w_extension_mode),
       .o_mem_read        (o_mem_read),
       .o_mem_write       (o_mem_write),
+      .o_mem_to_reg      (o_mem_to_reg),
       .o_reg_write       (o_reg_write),
       .o_reg_dir_to_write(o_reg_dir_to_write),
       .o_branch          (o_branch),
       .o_jump            (o_jump),
+      .o_signed          (o_signed),
       .o_word_size       (o_word_size)
   );
 
