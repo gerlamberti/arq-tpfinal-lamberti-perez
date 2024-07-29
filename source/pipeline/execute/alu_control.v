@@ -33,7 +33,8 @@ module alu_control #(
                     default: o_alu_operation = DEFAULT_ALU_OPERATION;  
                 endcase 
             end    
-            `ADDI_OPCODE: o_alu_operation = `ADD;  
+            `ADDI_OPCODE: o_alu_operation = `ADD;
+            `BEQ_OPCODE: o_alu_operation = `SUB;  
             default: o_alu_operation = DEFAULT_ALU_OPERATION;
         endcase
 
