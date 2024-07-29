@@ -66,8 +66,8 @@ module IF  #(
     u_mux_pc
     (
         .i_sumador_pc4  (pc4),
-        .i_branch       (i_branch),
         .i_branch_addr  (i_branch_addr),
+        .i_branch       (i_branch),
         .o_pc           (test_pc)
     );
 

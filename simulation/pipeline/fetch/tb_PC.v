@@ -16,7 +16,7 @@ module tb_PC();
         .i_reset        (i_reset),
         .i_step         (i_step),
         .i_pc_write     (i_pc_write),
-        .i_new_pc       (o_pc),
+        .i_new_pc       (i_new_PC),
         .o_pc           (o_pc)  
     );
 
@@ -36,20 +36,23 @@ module tb_PC();
         i_reset = 1;
         #20
         i_reset = 0;
+        i_new_PC =4;
+        #20
         
-        #10
         if (o_pc != 32'h4) begin
             $display("Error en el PC deberias ser 0x4");
             $finish;
         end
-        
-        #10
+        i_new_PC = i_new_PC + 4;
+        #20
         if (o_pc != 32'h8) begin
             $display("Error en el PC deberias ser 0x8");
             $finish;
         end
         
-        #10
+        i_new_PC = i_new_PC + 4;
+        
+        #20
         if (o_pc != 32'hC) begin
             $display("Error en el PC deberias ser 0xC");
             $finish;
