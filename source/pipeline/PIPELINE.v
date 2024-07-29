@@ -250,7 +250,7 @@ module PIPELINE #(
       .i_reset(i_reset),
       .i_reg_write(w_mem_reg_write),
       .i_reg_dir_to_write(w_mem_reg_dir_to_write),
-      .i_mem_to_reg(0),  // TODO: esperar que germancito lo haga
+      .i_mem_to_reg(0),  // TODO: esperar que germancito haga un LW
       .i_data_memory(w_mem_data_memory),
       .i_alu_address_result(w_mem_alu_result),
       .o_reg_write(w_wb_reg_write),

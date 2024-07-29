@@ -5,6 +5,7 @@
 `define ANDI_OPCODE     6'b001100 
 `define BEQ_OPCODE      6'b000100
 `define JUMP_OPCODE     6'b000010
+`define SW_OPCODE       6'h2b
 
 
 // Function codes for R-type instructions
