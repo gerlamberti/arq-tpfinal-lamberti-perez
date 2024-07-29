@@ -17,6 +17,7 @@ module ID #(
     input            i_wb_reg_write,
     input [  NB-1:0] i_wb_reg_write_data,
     input [REGS-1:0] i_wb_reg_dir,
+    input [  NB-1:0] i_pc4,
 
     output [            NB-1:0] o_data_a,
     output [            NB-1:0] o_data_b,
@@ -32,6 +33,7 @@ module ID #(
     output [          REGS-1:0] o_reg_dir_to_write,
     output                      o_branch,
     output                      o_jump,
+    output [            NB-1:0] o_jump_addr,
     output [NB_SIZE_TYPE-1 : 0] o_word_size
 );
 
@@ -50,6 +52,10 @@ module ID #(
   assign w_i_dir_rt               =    i_instruction    [INBITS+REGS-1:INBITS];//INBITS+RT-1=16+5-1=20; INBITS=16; [20-16]
   assign o_intruction_op_code = i_instruction[NB-1:NB-CTRLNB];
   assign o_intruction_funct_code = i_instruction[CTRLNB-1:0];
+
+  //  Calculo de jump address
+  //  PC4[31:28] || instr_index || 00
+  assign o_jump_addr = {i_pc4[NB-1:28], i_instruction[25:0], 2'b00}; 
 
   control_unit #(
       .NB(NB)

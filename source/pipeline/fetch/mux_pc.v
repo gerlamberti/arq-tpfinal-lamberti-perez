@@ -3,16 +3,21 @@
 module mux_pc #(
     parameter NB = 32
 ) (
-    input  wire [NB-1:0] i_sumador_pc4,
+    input       [NB-1:0] i_sumador_pc4,
     input       [NB-1:0] i_branch_addr,
+    input       [NB-1:0] i_jump_addr,
+
     input                i_branch,
-    output wire [NB-1:0] o_pc
+    input                i_jump,
+    
+    output      [NB-1:0] o_pc
 );
 
   reg [NB-1:0] pc;
 
   always @(*) begin
     if (i_branch) pc <= i_branch_addr;
+    else if(i_jump) pc <= i_jump_addr;
     else pc <= i_sumador_pc4;
   end
 
