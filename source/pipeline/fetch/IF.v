@@ -10,6 +10,8 @@ module IF  #(
     input   wire                    i_pc_write,
     input                           i_branch,
     input   [NB-1:0]                i_branch_addr,
+    input                           i_jump,
+    input   [NB-1:0]                i_jump_addr,
     output  wire    [NB-1:0]        o_IF_pc,
     output  wire    [NB-1:0]        o_IF_pc4,
     output  wire    [NB-1:0]        o_IF_pc8,
@@ -67,7 +69,11 @@ module IF  #(
     (
         .i_sumador_pc4  (pc4),
         .i_branch_addr  (i_branch_addr),
+        .i_jump_addr    (i_jump_addr),
+
         .i_branch       (i_branch),
+        .i_jump         (i_jump),
+        
         .o_pc           (test_pc)
     );
 
