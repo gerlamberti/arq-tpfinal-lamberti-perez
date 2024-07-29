@@ -20,7 +20,7 @@ module control_unit #(
     output reg [       NB_REGS-1:0] o_reg_dir_to_write,
     output reg                      o_branch,
     output reg                      o_jump,
-    output reg                      o_signed,
+    output reg                      o_signed,            // solo usado para loads
     output reg [             1 : 0] o_ExtensionMode,
     output reg [NB_SIZE_TYPE-1 : 0] o_word_size
 );
@@ -42,7 +42,7 @@ module control_unit #(
     o_ExtensionMode <= 0;
     o_signed <= 0;
     o_word_size <= `COMPLETE_WORD;
-    
+
     case (i_opcode)
       `RTYPE_OPCODE: begin
         o_ALUSrc           <= `RT_ALU_SRC;
@@ -109,12 +109,14 @@ module control_unit #(
         o_word_size     <= `COMPLETE_WORD;
       end
       `LW_OPCODE: begin
-        o_ALUSrc           <=  `INMEDIATE_ALU_SRC;
-        o_mem_read         <=  1'b1;  // read mem
-        o_mem_to_reg       <=  1'b1;  // read salida data memory
-        o_reg_write        <=  1'b1;  // escribe en rt
-        o_signed           <=  1'b1;
-        end
+        o_ALUSrc           <= `INMEDIATE_ALU_SRC;
+        o_mem_read         <= 1'b1;  // read mem
+        o_mem_write        <= 1'b0;  // no write mem
+        o_mem_to_reg       <= 1'b1;  // read salida data memory
+        o_reg_write        <= 1'b1;  // escribe en rt
+        o_signed           <= 1'b1;  // solo se usa en los loads
+        o_reg_dir_to_write <= i_rt;
+      end
       default: begin
         o_ALUSrc           <= `RT_ALU_SRC;
         o_ExtensionMode    <= `SIGNED_EXTENSION_MODE;
