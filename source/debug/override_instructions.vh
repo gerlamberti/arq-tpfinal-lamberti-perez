@@ -1,7 +1,7 @@
 // Instrucciones para sobreescribir el pipeline
 memory[0] = 32'h00000000;
-memory[1] = {`ADDI_OPCODE, 5'd7, 5'd2, 16'hFBF2};  // $2 <-$1 + FFF2
-memory[2] = {`RTYPE_OPCODE, 5'd5, 5'd3, 5'd4, 5'b0, `ADD_FCODE};
+memory[1] = {`ADDI_OPCODE, 5'd7, 5'd2, 16'hFBF2};  // $2 <- $7 + FBF2
+memory[2] = {`RTYPE_OPCODE, 5'd5, 5'd3, 5'd4, 5'b0, `ADD_FCODE}; // $s <- $5 + $3
 memory[3] = 32'h00000003;
 memory[4] = 32'h00000004;
 memory[5] = 32'h00000005;
