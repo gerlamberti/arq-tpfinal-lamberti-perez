@@ -11,6 +11,8 @@ def main():
     port = input("Ingrese el puerto (por defecto: COM7): ") or "COM7"
     baud_rate = input("Ingrese el baud rate (por defecto: 9600): ")
     baud_rate = int(baud_rate) if baud_rate else 9600
+    number_of_registers = 32
+    number_of_memory_slots = 16
 
     try:
         # Configurar conexión UART
@@ -24,6 +26,7 @@ def main():
         while True:
             # Leer entrada del usuario y enviar a UART
             user_input = input("Ingrese un comando para enviar: ")
+            ser.reset_input_buffer()
             ser.write(user_input.encode())
 
             # Leer respuesta de UART
@@ -38,7 +41,7 @@ def main():
                 print(f"{Fore.GREEN}PC: {pc_hex} (Hex) | {pc_dec} (Dec)")
 
                 # Leer y parsear 32 registros (128 bytes)
-                for i in range(32):
+                for i in range(number_of_registers):
                     reg_data = ser.read(4)
                     if len(reg_data) < 4:
                         print(f"Datos insuficientes para el registro {i}.")
@@ -56,7 +59,7 @@ def main():
                 alu_result_dec = int(alu_result_hex, 16)
                 print(f"{Fore.RED}ALU_RESULT: {alu_result_hex} (Hex) | {alu_result_dec} (Dec)")
                 # Leer y parsear MEMORY slots. 16 slots (4 bytes c/u)
-                for i in range(16):
+                for i in range(number_of_memory_slots):
                     reg_data = ser.read(4)
                     if len(reg_data) < 4:
                         print(f"Datos insuficientes para el slot de memoria {i}.")
@@ -65,6 +68,7 @@ def main():
                     memory_address = hex(i * 4)
                     reg_dec = int(reg_hex, 16)
                     print(f"{Fore.MAGENTA}Memoria {memory_address}({i}): {reg_hex} (Hex) | {reg_dec} (Dec)")
+
 
     except KeyboardInterrupt:
         print("Terminando el programa.")
