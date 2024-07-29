@@ -55,6 +55,16 @@ def main():
                 alu_result_hex = binascii.hexlify(alu_result_data).decode()
                 alu_result_dec = int(alu_result_hex, 16)
                 print(f"{Fore.RED}ALU_RESULT: {alu_result_hex} (Hex) | {alu_result_dec} (Dec)")
+                # Leer y parsear MEMORY slots. 16 slots (4 bytes c/u)
+                for i in range(16):
+                    reg_data = ser.read(4)
+                    if len(reg_data) < 4:
+                        print(f"Datos insuficientes para el slot de memoria {i}.")
+                        continue
+                    reg_hex = binascii.hexlify(reg_data).decode()
+                    memory_address = hex(i * 4)
+                    reg_dec = int(reg_hex, 16)
+                    print(f"{Fore.MAGENTA}Memoria {memory_address}({i}): {reg_hex} (Hex) | {reg_dec} (Dec)")
 
     except KeyboardInterrupt:
         print("Terminando el programa.")

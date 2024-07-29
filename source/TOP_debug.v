@@ -34,7 +34,9 @@ module TOP_debug #(
                 w_EX_data_a,w_EX_data_b,
                 w_ID_extension_result,w_EX_extension_result,
                 w_mips_register_data,
-                w_mips_alu_result;
+                w_mips_alu_result,
+                w_mips_mem_data,
+                w_debug_memory_address;
   /*-----------------------------------------------------------------------------------*/
   // instanciando el generador de baudio 
   GeneradorDeBaudios #(
@@ -77,14 +79,15 @@ module TOP_debug #(
       .i_uart_tx_done(tick_completos_transmisor),//EL FIN DE TRANSMISION SE DA CUANDO LOS TICKS ESTAN COMPLETOS POR LO TANTO SE PONE EL MISMO PARAMETRO EN                                                             
       .i_mips_pc(w_mips_pc),
       .i_mips_register(w_mips_register_data),
+      .i_mips_mem_data(w_mips_mem_data),
       .i_mips_alu_result(w_mips_alu_result),
       //------------------salidas------------------//
       .o_uart_tx_ready(comienzo_transmicion), //El comieno de la trasmision es cuando la interfaz alu este vacia      ESTE ES UNICO QUE TENGO DUDA DINOSAURIO
       .o_uart_tx_data(entrada_transmisor_wire),  //se�al que va a salir de la interfaz hacia el modulo que le sigue
       .o_step(step),
       .o_state_debug(o_leds[3:0]),
-      .o_mips_register_number(w_debug_mips_register_number)
-
+      .o_mips_register_number(w_debug_mips_register_number),
+      .o_mips_memory_address(w_debug_memory_address)
   );
 
 
@@ -95,9 +98,11 @@ module TOP_debug #(
       .i_step(step),
       .i_reset(reset),
       .i_debug_mips_register_number(w_debug_mips_register_number),
+      .i_debug_address(w_debug_memory_address),
       .o_mips_pc(w_mips_pc),
       .o_mips_alu_result(w_mips_alu_result),
-      .o_mips_register_data(w_mips_register_data)
+      .o_mips_register_data(w_mips_register_data),
+      .o_mips_data_memory(w_mips_mem_data)
   );
 
   /*-----------------------------------------------------------------------------------*/

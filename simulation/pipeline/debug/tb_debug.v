@@ -11,19 +11,24 @@ module tb_debug;
                 i_mips_register,
                 i_mips_alu_result,
                 test_uart_accumulator,
-                counter;
+                counter,
+                i_mips_mem_data;
     // Outputs
+    localparam NUMBER_REGISTERS = 32;
+    localparam NUMBER_MEMORY_SLOTS = 16;
     localparam NB_REG_O = $clog2(NUMBER_REGISTERS + 1);
     wire [NB_REG_O-1 : 0] o_mips_register_number;
     wire [7:0]  o_uart_tx_data;
     wire        o_uart_tx_ready;
     wire        o_step;
-    localparam NUMBER_REGISTERS = 5;
+    wire [31:0] o_mips_memory_address;
+
     // Instantiate the Unit Under Test (UUT)
     debug #(
         .NB(32),
         .DATA_BITS(8),
-        .NUMBER_REGISTERS(NUMBER_REGISTERS)
+        .NUMBER_REGISTERS(NUMBER_REGISTERS),
+        .NUMBER_MEM_WORDS(NUMBER_MEMORY_SLOTS)
     ) uut (
         // Inputs
         .i_clk(i_clk),
@@ -34,11 +39,13 @@ module tb_debug;
         .i_mips_pc(i_mips_pc),
         .i_mips_register(i_mips_register),
         .i_mips_alu_result(i_mips_alu_result),
+        .i_mips_mem_data(i_mips_mem_data),
         // Outputs
         .o_mips_register_number(o_mips_register_number),
         .o_uart_tx_data(o_uart_tx_data),
         .o_uart_tx_ready(o_uart_tx_ready),
-        .o_step(o_step)
+        .o_step(o_step),
+        .o_mips_memory_address(o_mips_memory_address)
     );    
 
     localparam TEST_PC_TO_SEND = 32'h1ba5e93f;
@@ -53,7 +60,10 @@ module tb_debug;
         for (counter = 0; counter < NUMBER_REGISTERS; counter = counter + 1)
             random_registers[counter] = $random();  
     end
-    always @(posedge i_clk) i_mips_register <= random_registers[o_mips_register_number];
+    always @(posedge i_clk) begin
+        i_mips_register <= random_registers[o_mips_register_number];
+        i_mips_mem_data <= random_registers[o_mips_memory_address >> 2];
+    end    
 
     // Tests 
     initial begin
@@ -217,7 +227,34 @@ module tb_debug;
             $display("Se deberia haber enviado el Alu result %h", i_mips_alu_result);
             $finish;
         end
-     
+      // Se testea que se envien los 16 memory slots
+        for (
+            counter = 0; 
+            counter < NUMBER_MEMORY_SLOTS;
+            counter = counter + 1
+        ) begin
+            if (o_mips_memory_address !== counter*4) begin
+                $display("El address memory a buscar deberia ser %s", counter);
+                $finish;
+            end
+            // Test sent uart
+            test_uart_accumulator = 0;
+            @(posedge o_uart_tx_ready);
+            test_uart_accumulator[31:24] = o_uart_tx_data;
+            @(posedge o_uart_tx_ready);
+            test_uart_accumulator[23:16] = o_uart_tx_data;
+            @(posedge o_uart_tx_ready);
+            test_uart_accumulator[15:8] = o_uart_tx_data;
+            @(posedge o_uart_tx_ready);
+            test_uart_accumulator[7:0] = o_uart_tx_data;
+           
+            if (test_uart_accumulator  !== random_registers[counter] ||
+                o_step          !== 0 // Por las dudas, nunca tiene que ser 1
+            ) begin
+                $display("Deber�a haberse enviado el MIPS memory slot %h", i_mips_register);
+                $finish;
+            end  
+        end
         #200
         $finish;
     end

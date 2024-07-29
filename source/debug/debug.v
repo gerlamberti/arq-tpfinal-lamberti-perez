@@ -4,22 +4,25 @@ module debug #(
     parameter NB = 32,
     parameter DATA_BITS = 8,
     parameter NUMBER_REGISTERS = 32,
+    parameter NUMBER_MEM_WORDS = 16,
     parameter NB_REG = $clog2(NUMBER_REGISTERS + 1),
     parameter NB_STATE = 5
 ) (
-    input                      i_clk,
-    input                      i_reset,
-    input                      i_uart_rx_ready,
-    input      [DATA_BITS-1:0] i_uart_rx_data,
-    input                      i_uart_tx_done,
-    input      [       NB-1:0] i_mips_pc,
-    input      [       NB-1:0] i_mips_register,
-    input      [       NB-1:0] i_mips_alu_result,
+    input i_clk,
+    input i_reset,
+    input i_uart_rx_ready,
+    input [DATA_BITS-1:0] i_uart_rx_data,
+    input i_uart_tx_done,
+    input [NB-1:0] i_mips_pc,
+    input [NB-1:0] i_mips_register,
+    input [NB-1:0] i_mips_mem_data,
+    input [NB-1:0] i_mips_alu_result,
     output     [   NB_REG-1:0] o_mips_register_number, // TODO: quitarle un bit a esto para que quede mas prolijo
-    output     [DATA_BITS-1:0] o_uart_tx_data,
-    output                     o_uart_tx_ready,
-    output reg                 o_step,
-    output     [ NB_STATE-1:0] o_state_debug
+    output [NB-1:0] o_mips_memory_address,
+    output [DATA_BITS-1:0] o_uart_tx_data,
+    output o_uart_tx_ready,
+    output reg o_step,
+    output [NB_STATE-1:0] o_state_debug
 );
 
   // States of debugger
@@ -33,8 +36,8 @@ module debug #(
   localparam CMD_FETCH_PC = 0;
   localparam CMD_FETCH_REGS = 1;
   localparam CMD_FETCH_ALU = 2;
-  localparam CMD_FETCH_FINISHED = 3;
-  localparam NUMBER_FETCH_CMDS = $clog2(CMD_FETCH_FINISHED + 1);
+  localparam CMD_FETCH_MEM = 3;
+  localparam CMD_FETCH_FINISHED = 4;
 
 
   reg [NB_STATE-1:0] state, state_next;
@@ -45,6 +48,7 @@ module debug #(
   reg [1:0] tx_count_bytes, tx_count_bytes_next;
   reg [NB_REG-1:0] mips_register_number, mips_register_number_next;
   reg [3:0] fetch_cmd, fetch_cmd_next;
+  reg [NB-1:0] mips_memory_address, mips_memory_address_next;
 
 
   always @(posedge i_clk or posedge i_reset) begin
@@ -55,6 +59,7 @@ module debug #(
       uart_tx_ready <= 0;
       tx_count_bytes <= 0;
       mips_register_number <= 0;
+      mips_memory_address <= 0;
       fetch_cmd <= CMD_FETCH_PC;
     end else begin
       state                <= state_next;
@@ -63,6 +68,7 @@ module debug #(
       uart_tx_ready        <= uart_tx_ready_next;
       tx_count_bytes       <= tx_count_bytes_next;
       mips_register_number <= mips_register_number_next;
+      mips_memory_address  <= mips_memory_address_next;
       fetch_cmd            <= fetch_cmd_next;
     end
   end
@@ -74,6 +80,7 @@ module debug #(
     uart_tx_ready_next = uart_tx_ready;
     tx_count_bytes_next = tx_count_bytes;
     mips_register_number_next = mips_register_number;
+    mips_memory_address_next = mips_memory_address;
     fetch_cmd_next = fetch_cmd;
     o_step = 0;
 
@@ -120,22 +127,34 @@ module debug #(
           end
           CMD_FETCH_REGS: begin
             if (mips_register_number < NUMBER_REGISTERS) begin
-                state_next = SEND_DATA_TX;
-                fetch_cmd_next = CMD_FETCH_REGS;
-                tx_data_32_next = i_mips_register;                      
-                mips_register_number_next = mips_register_number + 1;
-            end
-            else begin
-                state_next = FETCH_REG;
-                fetch_cmd_next = CMD_FETCH_ALU;
-                tx_data_32_next = 0;
-                mips_register_number_next = 0; 
+              state_next = SEND_DATA_TX;
+              fetch_cmd_next = CMD_FETCH_REGS;
+              tx_data_32_next = i_mips_register;
+              mips_register_number_next = mips_register_number + 1;
+            end else begin
+              state_next = FETCH_REG;
+              fetch_cmd_next = CMD_FETCH_ALU;
+              tx_data_32_next = 0;
+              mips_register_number_next = 0;
             end
           end
           CMD_FETCH_ALU: begin
             tx_data_32_next = i_mips_alu_result;
             state_next = SEND_DATA_TX;
-            fetch_cmd_next = CMD_FETCH_FINISHED;
+            fetch_cmd_next = CMD_FETCH_MEM;
+          end
+          CMD_FETCH_MEM: begin
+            if (mips_memory_address < (NUMBER_MEM_WORDS * 4)) begin
+              state_next = SEND_DATA_TX;
+              fetch_cmd_next = CMD_FETCH_MEM;
+              tx_data_32_next = i_mips_mem_data;
+              mips_memory_address_next = mips_memory_address + 4;
+            end else begin
+              state_next = FETCH_REG;
+              fetch_cmd_next = CMD_FETCH_FINISHED;
+              tx_data_32_next = 0;
+              mips_memory_address_next = 0;
+            end
           end
           CMD_FETCH_FINISHED: begin
             tx_data_32_next = 0;
@@ -154,6 +173,7 @@ module debug #(
         uart_tx_ready_next = 0;
         tx_count_bytes_next = 0;
         mips_register_number_next = 0;
+        mips_memory_address_next = 0;
         o_step = 0;
         fetch_cmd_next = CMD_FETCH_PC;
       end
@@ -161,10 +181,11 @@ module debug #(
     endcase
   end
 
-  assign o_uart_tx_data  = uart_tx_data;
+  assign o_uart_tx_data = uart_tx_data;
   assign o_uart_tx_ready = uart_tx_ready;
   assign o_mips_register_number = mips_register_number;
-  assign o_state_debug   = state;
+  assign o_mips_memory_address = mips_memory_address;
+  assign o_state_debug = state;
 
 
 endmodule
