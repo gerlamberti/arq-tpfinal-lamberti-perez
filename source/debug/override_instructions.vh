@@ -1,5 +1,5 @@
 // Instrucciones para sobreescribir el pipeline
-`define TEST_J_6TH_INSTRUCTION // Perdon por esta cochinada, no encontre una manera de hacer mejor esto
+// `define TEST_J_6TH_INSTRUCTION // Perdon por esta cochinada, no encontre una manera de hacer mejor esto
 
 memory[0] = 32'h00000000;
 memory[1] = {`ADDI_OPCODE, 5'd7, 5'd2, 16'hFBF2};  // $2 <- $7 + FBF2
@@ -9,7 +9,8 @@ memory[4] = {`LW_OPCODE, 5'd8, 5'd1, 16'h9};  // LW $1, 9($8)
 `ifdef TEST_J_6TH_INSTRUCTION
 memory[5] = 0;  // Para el test del Jump me jode el BEQ entonces lo dejo en nop.
 `else
-memory[5] = {`BEQ_OPCODE, 5'd4, 5'd8, -16'sd2};  // BEQ $4, $8, -2
+memory[5] = {`BNE_OPCODE, 5'd4, 5'd1, -16'sd2};  // BEQ $4, $8, -2
+// memory[5] = {`BEQ_OPCODE, 5'd4, 5'd8, -16'sd2};  // BEQ $4, $8, -2
 `endif
 memory[6] = {`J_OPCODE, 26'd2};  // J 2, deberia saltar a instruccion 2
 memory[7] = 32'h00000007;  // TODO meter un par de ADDs para rellenar

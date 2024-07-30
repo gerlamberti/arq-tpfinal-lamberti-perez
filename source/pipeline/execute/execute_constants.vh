@@ -10,3 +10,4 @@
 `define SRL 4'b0100 // A>>B (shamt)
 `define NOR 4'b1100
 `define SLL 4'b0011 // A<<B (shamt)
+`define BNE 4'b1001

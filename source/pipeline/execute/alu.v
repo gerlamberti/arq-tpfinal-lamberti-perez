@@ -25,7 +25,7 @@ module ALU #(
                 result  =   i_data_a   |   i_data_b;
       `ADD:
                 result  =   i_data_a   +   i_data_b;
-      `SUB:
+      `SUB, `BNE:
                 result  =   i_data_a   -   i_data_b;
       `SLT:
                 result  =   i_data_a   <   i_data_b ? 1:0;
@@ -45,6 +45,6 @@ module ALU #(
   end
 
   assign o_result = result;
-  assign o_cero   = (result == 0);
+  assign o_cero   = (i_operation == `BNE) ? (result != 0) : (result == 0);
 
 endmodule

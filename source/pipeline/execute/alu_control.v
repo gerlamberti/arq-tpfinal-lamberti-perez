@@ -35,6 +35,7 @@ module alu_control #(
             end    
             `ADDI_OPCODE: o_alu_operation = `ADD;
             `BEQ_OPCODE: o_alu_operation = `SUB;
+            `BNE_OPCODE: o_alu_operation = `BNE;
             `SW_OPCODE: o_alu_operation = `ADD;
             `LW_OPCODE: o_alu_operation = `ADD;
             default: o_alu_operation = DEFAULT_ALU_OPERATION;
