@@ -44,7 +44,7 @@ module register_file #(
   always @(posedge i_clk) begin
     if (i_reset) begin
       for (i = 0; i < TAM; i = i + 1) begin
-        memory[i] <= i;
+        memory[i] <= i; // TODO: Acordarse de dejar esto en 0 cuando presentemos
       end
     end
     if (i_step) begin

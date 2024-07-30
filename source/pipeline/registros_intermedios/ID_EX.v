@@ -21,15 +21,16 @@ module ID_EX #(
     input [NB_SIZE_TYPE-1 : 0] i_word_size,
     input                      i_mem_read,
     input                      i_mem_write,
+    input                      i_mem_to_reg,
     input                      i_reg_write,
     input [       NB_REGS-1:0] i_reg_dir_to_write,
     input                      i_jump,
+    input                      i_signed,
     input [            NB-1:0] i_jump_addr,
 
 
 
-
-
+    output reg                      o_signed,
     output reg [            NB-1:0] o_pc4,
     output reg [NB_SIZE_TYPE-1 : 0] o_word_size,
     output reg                      o_branch,
@@ -41,6 +42,7 @@ module ID_EX #(
     output reg [            NB-1:0] o_extension_result,
     output reg                      o_mem_read,
     output reg                      o_mem_write,
+    output reg                      o_mem_to_reg,
     output reg                      o_reg_write,
     output reg [       NB_REGS-1:0] o_reg_dir_to_write,
     output reg                      o_jump,
@@ -60,9 +62,11 @@ module ID_EX #(
       o_extension_result <= 0;
       o_mem_read <= 0;
       o_mem_write <= 0;
+      o_mem_to_reg <= 0;
       o_reg_write <= 0;
       o_reg_dir_to_write <= 0;
       o_jump <= 0;
+      o_signed <= 0;
       o_jump_addr <= 0;
     end else begin
       if (i_step) begin
@@ -77,9 +81,11 @@ module ID_EX #(
         o_extension_result <= i_extension_result;
         o_mem_read <= i_mem_read;
         o_mem_write <= i_mem_write;
+        o_mem_to_reg <= i_mem_to_reg;
         o_reg_write <= i_reg_write;
         o_reg_dir_to_write <= i_reg_dir_to_write;
         o_jump <= i_jump;
+        o_signed <= o_signed;
         o_jump_addr <= i_jump_addr;
       end
     end

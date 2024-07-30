@@ -5,7 +5,7 @@ memory[0] = 32'h00000000;
 memory[1] = {`ADDI_OPCODE, 5'd7, 5'd2, 16'hFBF2};  // $2 <- $7 + FBF2
 memory[2] = {`RTYPE_OPCODE, 5'd5, 5'd3, 5'd4, 5'b0, `ADD_FCODE};  // $4 <- $5 + $3
 memory[3] = {`SW_OPCODE, 5'd1, 5'd12, 16'h8};  // SW $2, 15($1)
-memory[4] = 32'h00000000;  // TODO meter un LW
+memory[4] = {`LW_OPCODE, 5'd8, 5'd1, 16'h9};  // LW $1, 9($8)
 `ifdef TEST_J_6TH_INSTRUCTION
 memory[5] = 0;  // Para el test del Jump me jode el BEQ entonces lo dejo en nop.
 `else

@@ -31,6 +31,7 @@ module PIPELINE #(
   // Wires for ID stage
   wire w_id_mem_read;
   wire w_id_mem_write;
+  wire w_id_mem_to_reg;
   wire w_id_reg_write;
   wire w_id_branch;
   wire w_id_jump;
@@ -42,6 +43,8 @@ module PIPELINE #(
   wire [NB-1:0] w_ex_pc4;
   wire w_ex_mem_read;
   wire w_ex_mem_write;
+  wire w_ex_signed;
+  wire w_ex_mem_to_reg;
   wire w_ex_reg_write;
   wire w_ex_branch;
   wire w_ex_jump;
@@ -56,6 +59,8 @@ module PIPELINE #(
   wire [NB-1:0] w_mem_data_b;
   wire w_mem_mem_read;
   wire w_mem_mem_write;
+  wire w_mem_signed;
+  wire w_mem_mem_to_reg;
   wire w_mem_reg_write;
   wire [NB_SIZE_TYPE-1:0] w_mem_word_size;
   wire [NB-1:0] w_mem_data_memory;
@@ -67,6 +72,7 @@ module PIPELINE #(
   // Wires for WB stage
   wire w_wb_reg_write;
   wire w_wb_mem_to_reg;
+  wire w_wb_signed;
   wire [NB-1:0] w_wb_data_memory;
   wire [NB-1:0] w_wb_alu_address_result;
   wire [NB-1:0] w_wb_data_to_register;
@@ -129,6 +135,8 @@ module PIPELINE #(
       .o_alu_src(w_id_alu_src),
       .o_mem_read(w_id_mem_read),
       .o_mem_write(w_id_mem_write),
+      .o_signed(w_id_signed),
+      .o_mem_to_reg(w_id_mem_to_reg),
       .o_reg_write(w_id_reg_write),
       .o_reg_dir_to_write(w_id_reg_dir_to_write),
       .o_branch(w_id_branch),
@@ -155,6 +163,8 @@ module PIPELINE #(
       .i_alu_src(w_id_alu_src),
       .i_mem_read(w_id_mem_read),
       .i_mem_write(w_id_mem_write),
+      .i_signed(w_id_signed),
+      .i_mem_to_reg(w_id_mem_to_reg),
       .i_reg_write(w_id_reg_write),
       .i_reg_dir_to_write(w_id_reg_dir_to_write),
       .i_branch(w_id_branch),
@@ -171,6 +181,8 @@ module PIPELINE #(
       .o_pc4(w_ex_pc4),
       .o_mem_read(w_ex_mem_read),
       .o_mem_write(w_ex_mem_write),
+      .o_signed(w_ex_signed),
+      .o_mem_to_reg(w_ex_mem_to_reg),
       .o_reg_write(w_ex_reg_write),
       .o_reg_dir_to_write(w_ex_reg_dir_to_write),
       .o_branch(w_ex_branch),
@@ -211,6 +223,8 @@ module PIPELINE #(
       .i_data_b(w_ex_data_b),
       .i_mem_read(w_ex_mem_read),
       .i_mem_write(w_ex_mem_write),
+      .i_mem_to_reg(w_ex_mem_to_reg),
+      .i_signed(w_ex_signed),
       .i_reg_write(w_ex_reg_write),
       .i_reg_dir_to_write(w_ex_reg_dir_to_write),
       .i_word_size(w_ex_word_size),
@@ -220,6 +234,8 @@ module PIPELINE #(
       .o_data_b(w_mem_data_b),
       .o_mem_read(w_mem_mem_read),
       .o_mem_write(w_mem_mem_write),
+      .o_mem_to_reg(w_mem_mem_to_reg),
+      .o_signed(w_mem_signed),
       .o_reg_write(w_mem_reg_write),
       .o_reg_dir_to_write(w_mem_reg_dir_to_write),
       .o_word_size(w_mem_word_size),
@@ -238,7 +254,7 @@ module PIPELINE #(
       .i_step(i_step),
       .i_alu_address_result(w_mem_alu_result),
       .i_mem_read(w_mem_mem_read),
-      .i_signed(w_mem_i_signed),
+      .i_signed(w_mem_signed),
       .i_debug_address(i_debug_address),
       .i_data_b_to_write(w_mem_data_b),
       .i_word_size(w_mem_word_size),
@@ -258,7 +274,7 @@ module PIPELINE #(
       .i_reset(i_reset),
       .i_reg_write(w_mem_reg_write),
       .i_reg_dir_to_write(w_mem_reg_dir_to_write),
-      .i_mem_to_reg(0),  // TODO: esperar que germancito haga un LW
+      .i_mem_to_reg(w_mem_mem_to_reg),
       .i_data_memory(w_mem_data_memory),
       .i_alu_address_result(w_mem_alu_result),
       .o_reg_write(w_wb_reg_write),
