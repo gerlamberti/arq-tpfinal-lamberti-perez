@@ -90,16 +90,8 @@ module control_unit #(
         o_jump          <= 1'b0;
         o_word_size     <= 3'b000;
       end
-      `JUMP_OPCODE: begin
-        o_ALUSrc           <= `RT_ALU_SRC;
-        o_ExtensionMode    <= `SIGNED_EXTENSION_MODE;
-        o_mem_read         <= 1'b0;
-        o_mem_write        <= 1'b0;
-        o_reg_write        <= 1'b0;
-        o_branch           <= 1'b0;
+      `J_OPCODE: begin
         o_jump             <= 1'b1;
-        o_word_size        <= 3'b000;
-        o_reg_dir_to_write <= i_rt;
       end
       `SW_OPCODE: begin
         o_ALUSrc        <= `INMEDIATE_ALU_SRC;
