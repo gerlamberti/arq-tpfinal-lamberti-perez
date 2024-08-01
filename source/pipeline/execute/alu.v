@@ -34,11 +34,11 @@ module ALU #(
       `XOR:
                 result  =   i_data_a   ^   i_data_b;
       `SLL:
-                result  =   i_data_b << i_data_a;
+                result  =   i_data_b << i_data_a; // rd <- rt << sa
       `SRL:
-                result  =   i_data_b >> i_data_a;
+                result  =   i_data_b >> i_data_a; // rd <- rt >> sa
       `SRA:
-                result  =    $signed(i_data_b) >>> i_data_a;
+                result  =    $signed(i_data_b) >>> i_data_a; // rd <- rt >> sa (arihtmeric)
       default:
                 result  =   -1;
     endcase

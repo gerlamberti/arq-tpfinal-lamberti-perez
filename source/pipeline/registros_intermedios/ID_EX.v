@@ -15,6 +15,7 @@ module ID_EX #(
     input                      i_alu_src,                 // 0 data_b, 1 immediate
     input [            NB-1:0] i_data_a,
     input [            NB-1:0] i_data_b,
+    input [            NB-1:0] i_shamt,
     input [            NB-1:0] i_extension_result,
     input [            NB-1:0] i_pc4,
     input                      i_branch,
@@ -39,6 +40,7 @@ module ID_EX #(
     output reg                      o_alu_src,                 // 0 data_b, 1 immediate
     output reg [            NB-1:0] o_data_a,
     output reg [            NB-1:0] o_data_b,
+    output reg [            NB-1:0] o_shamt,
     output reg [            NB-1:0] o_extension_result,
     output reg                      o_mem_read,
     output reg                      o_mem_write,
@@ -59,6 +61,7 @@ module ID_EX #(
       o_alu_src <= 0;
       o_data_a <= 0;
       o_data_b <= 0;
+      o_shamt <= 0;
       o_extension_result <= 0;
       o_mem_read <= 0;
       o_mem_write <= 0;
@@ -78,6 +81,7 @@ module ID_EX #(
         o_alu_src <= i_alu_src;
         o_data_a <= i_data_a;
         o_data_b <= i_data_b;
+        o_shamt <= i_shamt;
         o_extension_result <= i_extension_result;
         o_mem_read <= i_mem_read;
         o_mem_write <= i_mem_write;

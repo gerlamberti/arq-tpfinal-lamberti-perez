@@ -11,6 +11,7 @@ module EXECUTE #(
     input                       i_alu_src,                 // 0 data_b, 1 immediate
     input       [       NB-1:0] i_data_a,
     input       [       NB-1:0] i_data_b,
+    input       [       NB-1:0] i_shamt,
     input       [       NB-1:0] i_extension_result,        // Viene del decode, es el imm extendido
     input       [       NB-1:0] i_pc4,
     output wire                 o_cero,
@@ -21,7 +22,8 @@ module EXECUTE #(
 
   wire [NB-1:0] w_data_a, w_data_b_or_immediate;
   wire [NB_ALU_OP-1:0] w_operation;
-
+  wire w_shamt_ctrl;
+  wire [NB-1:0] w_data_a_or_shamt;
 
   mux2 #(
       .NB(NB)
@@ -32,14 +34,24 @@ module EXECUTE #(
       .o_data(w_data_b_or_immediate)
   );
 
+  mux2 #(
+      .NB(NB)
+  ) mux_shamt_src (
+      .i_data_a(i_data_a),
+      .i_data_b(i_shamt),
+      .i_sel(w_shamt_ctrl),
+      .o_data(w_data_a_or_shamt)
+  );
+
   alu_control #() alu_control (
       .i_funct_code(i_instruction_funct_code),
       .i_instruction_opcode(i_instruction_op_code),
-      .o_alu_operation(w_operation)
+      .o_alu_operation(w_operation),
+      .o_shamt_ctrl(w_shamt_ctrl)
   );
 
   ALU #() alu (
-      .i_data_a(i_data_a),
+      .i_data_a(w_data_a_or_shamt),
       .i_data_b(w_data_b_or_immediate),
       .i_operation(w_operation),
       .o_cero(o_cero),
