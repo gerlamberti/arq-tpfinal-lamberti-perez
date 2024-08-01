@@ -70,6 +70,18 @@ module alu_control #(
                         o_alu_operation = `SRA;
                         o_shamt_ctrl = 1'b1;
                     end
+                    `SLLV_FCODE: begin
+                        o_alu_operation = `SLL;
+                        o_shamt_ctrl = 1'b0;
+                    end
+                    `SRLV_FCODE: begin
+                        o_alu_operation = `SRL;
+                        o_shamt_ctrl = 1'b0;
+                    end
+                    `SRAV_FCODE: begin
+                        o_alu_operation = `SRA;
+                        o_shamt_ctrl = 1'b0;
+                    end
                     default: begin
                         o_alu_operation = DEFAULT_ALU_OPERATION;
                         o_shamt_ctrl = 1'b0;  
