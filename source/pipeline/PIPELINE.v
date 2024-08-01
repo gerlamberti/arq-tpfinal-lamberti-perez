@@ -20,12 +20,12 @@ module PIPELINE #(
   // Wires for inter-stage communication
   wire [NB-1:0] w_if_instruction, w_if_id_pc4;
   wire [NB-1:0] w_id_instruction;
-  wire [NB-1:0] w_id_data_a, w_id_data_b, w_id_extension_result;
+  wire [NB-1:0] w_id_data_a, w_id_data_b, w_id_extension_result, w_id_shamt;
   wire [5:0] w_id_instruction_funct_code, w_id_instruction_op_code;
   wire w_id_alu_src;
   wire [5:0] w_ex_instruction_funct_code, w_ex_instruction_op_code;
   wire w_ex_alu_src;
-  wire [NB-1:0] w_ex_data_a, w_ex_data_b, w_ex_extension_result;
+  wire [NB-1:0] w_ex_data_a, w_ex_data_b, w_ex_extension_result, w_ex_shamt;
   wire [NB-1:0] w_ex_alu_result;
   wire [NB-1:0] w_id_pc4;
   // Wires for ID stage
@@ -127,6 +127,7 @@ module PIPELINE #(
       .i_pc4(w_id_pc4),
       .o_data_a(w_id_data_a),
       .o_data_b(w_id_data_b),
+      .o_shamt(w_id_shamt),
       .o_mips_register_data(o_mips_register_data),
       .o_intruction_funct_code(w_id_instruction_funct_code),
       .o_intruction_op_code(w_id_instruction_op_code),
@@ -158,6 +159,7 @@ module PIPELINE #(
       .i_instruction_op_code(w_id_instruction_op_code),
       .i_data_a(w_id_data_a),
       .i_data_b(w_id_data_b),
+      .i_shamt(w_id_shamt),
       .i_extension_result(w_id_extension_result),
       .i_pc4(w_id_pc4),
       .i_alu_src(w_id_alu_src),
@@ -176,6 +178,7 @@ module PIPELINE #(
       .o_alu_src(w_ex_alu_src),
       .o_data_a(w_ex_data_a),
       .o_data_b(w_ex_data_b),
+      .o_shamt(w_ex_shamt),
       .o_extension_result(w_ex_extension_result),
 
       .o_pc4(w_ex_pc4),
@@ -203,6 +206,7 @@ module PIPELINE #(
       .i_alu_src(w_ex_alu_src),
       .i_data_a(w_ex_data_a),
       .i_data_b(w_ex_data_b),
+      .i_shamt(w_ex_shamt),
       .i_extension_result(w_ex_extension_result),
       .i_pc4(w_ex_pc4),
       .o_cero(w_ex_cero),

@@ -23,6 +23,7 @@ module ID #(
     output [            NB-1:0] o_data_b,
     output [            NB-1:0] o_mips_register_data,
     output [            NB-1:0] o_extension_result,
+    output [            NB-1:0] o_shamt,
     output [        CTRLNB-1:0] o_intruction_funct_code,
     output [        CTRLNB-1:0] o_intruction_op_code,
     // From control unit
@@ -41,6 +42,7 @@ module ID #(
 
   wire [  REGS-1:0] w_i_dir_rs;  // este - ID
   wire [  REGS-1:0] w_i_dir_rt;  // este - ID
+  wire [  REGS-1:0] w_i_dir_shamt;  // este - ID
   wire [CTRLNB-1:0] w_i_special;  // este UC
   wire [CTRLNB-1:0] w_id_instr_control;  // este UC
   wire [INBITS-1:0] w_i_id_inmediate;  // este - ID
@@ -52,6 +54,7 @@ module ID #(
   assign w_i_id_inmediate = i_instruction[INBITS-1:0];
   assign w_i_dir_rs               =    i_instruction    [INBITS+REGS+REGS-1:INBITS+REGS];//INBITS+RT+RS-1=16+5+5-1=25; INBITS+RT=16+5=21; [25-21]
   assign w_i_dir_rt               =    i_instruction    [INBITS+REGS-1:INBITS];//INBITS+RT-1=16+5-1=20; INBITS=16; [20-16]
+  assign w_i_dir_shamt            =    i_instruction    [INBITS-REGS-1:CTRLNB];
   assign o_intruction_op_code = i_instruction[NB-1:NB-CTRLNB];
   assign o_intruction_funct_code = i_instruction[CTRLNB-1:0];
 
@@ -107,5 +110,12 @@ module ID #(
       .o_extensionresult(o_extension_result)
   );
 
+  extensor_shamt #(
+      .NB(NB),
+      .REGS(REGS)
+  ) u_extensor_shamt (
+      .i_shamt   (w_i_dir_shamt),
+      .o_shamt   (o_shamt)
+  );
 
 endmodule
