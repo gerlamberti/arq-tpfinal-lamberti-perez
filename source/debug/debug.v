@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "instruction_constants.vh"
 
 module debug #(
     parameter NB = 32,
@@ -22,7 +23,11 @@ module debug #(
     output [DATA_BITS-1:0] o_uart_tx_data,
     output o_uart_tx_ready,
     output reg o_step,
-    output [NB_STATE-1:0] o_state_debug
+    output [NB_STATE-1:0] o_state_debug,
+    // outputs para escribir el instruction memory
+    output reg o_instruction_write_enable,
+    output reg [NB-1:0] o_instruction_address,
+    output reg [NB-1:0] o_instruction_data
 );
 
   // States of debugger
@@ -30,7 +35,9 @@ module debug #(
   localparam STEP = 2;  // recibi una 's'
   localparam SEND_DATA_TX = 3;  //  envio 8 bit
   localparam WAIT_TX     =   4; // si en contador es 0 pasa a data_init sino voy al estado para cargar otro dato, deplazo de a 8 para de los 32 solo enviar los 8 que quiero
-  localparam FETCH_REG = 5;
+  localparam WAIT_RX = 5;
+  localparam FETCH_REG = 6;
+  localparam WRITE_INSTRUCTION = 7;
 
   // Fetch commands
   localparam CMD_FETCH_PC = 0;
@@ -39,16 +46,27 @@ module debug #(
   localparam CMD_FETCH_MEM = 3;
   localparam CMD_FETCH_FINISHED = 4;
 
+  // UART ASCII COMMANDS
+  localparam ASCII_STEP_MODE = 8'h73;  // 's'
+  localparam ASCII_WRITE_IM_MODE = 8'h69;  // 'i'
+
+  // HALT INSTRUCTION
+
 
   reg [NB_STATE-1:0] state, state_next;
   reg [NB-1:0] tx_data_32, tx_data_32_next;
+  reg [NB-1:0] instruction_data_buffer_next;  // *** Buffer para guardar la instruccion a escribir ***
+
   // Uart related registers
   reg [DATA_BITS-1:0] uart_tx_data, uart_tx_data_next;
   reg uart_tx_ready, uart_tx_ready_next;
   reg [1:0] tx_count_bytes, tx_count_bytes_next;
+  reg [1:0] instruction_byte_counter, instruction_byte_counter_next;
   reg [NB_REG-1:0] mips_register_number, mips_register_number_next;
   reg [3:0] fetch_cmd, fetch_cmd_next;
   reg [NB-1:0] mips_memory_address, mips_memory_address_next;
+  reg [NB-1:0] instruction_address_next;
+  reg instruction_write_enable_next;
 
 
   always @(posedge i_clk or posedge i_reset) begin
@@ -61,15 +79,22 @@ module debug #(
       mips_register_number <= 0;
       mips_memory_address <= 0;
       fetch_cmd <= CMD_FETCH_PC;
+      o_instruction_data <= 0;
+      instruction_byte_counter <= 0;
+      o_instruction_write_enable <= 0;
     end else begin
-      state                <= state_next;
-      tx_data_32           <= tx_data_32_next;
-      uart_tx_data         <= uart_tx_data_next;
-      uart_tx_ready        <= uart_tx_ready_next;
-      tx_count_bytes       <= tx_count_bytes_next;
-      mips_register_number <= mips_register_number_next;
-      mips_memory_address  <= mips_memory_address_next;
-      fetch_cmd            <= fetch_cmd_next;
+      state                      <= state_next;
+      tx_data_32                 <= tx_data_32_next;
+      uart_tx_data               <= uart_tx_data_next;
+      uart_tx_ready              <= uart_tx_ready_next;
+      tx_count_bytes             <= tx_count_bytes_next;
+      mips_register_number       <= mips_register_number_next;
+      mips_memory_address        <= mips_memory_address_next;
+      fetch_cmd                  <= fetch_cmd_next;
+      o_instruction_data         <= instruction_data_buffer_next;
+      instruction_byte_counter   <= instruction_byte_counter_next;
+      o_instruction_address      <= instruction_address_next;
+      o_instruction_write_enable <= instruction_write_enable_next;
     end
   end
 
@@ -83,14 +108,22 @@ module debug #(
     mips_memory_address_next = mips_memory_address;
     fetch_cmd_next = fetch_cmd;
     o_step = 0;
-
-
+    instruction_data_buffer_next = o_instruction_data;
+    instruction_byte_counter_next = instruction_byte_counter;
+    instruction_address_next = o_instruction_address;
+    instruction_write_enable_next = o_instruction_write_enable;
     case (state)
       IDLE: begin
         if (i_uart_rx_ready) begin
           case (i_uart_rx_data)
-            8'h73: begin
-              state_next = STEP;  // Recibi un 's'
+            ASCII_STEP_MODE: begin
+              state_next = STEP;
+            end
+            ASCII_WRITE_IM_MODE: begin
+              instruction_address_next = 0;
+              instruction_data_buffer_next = 0;
+              instruction_byte_counter_next = 0;
+              state_next = WAIT_RX;
             end
             default: begin
               state_next = IDLE;
@@ -107,6 +140,27 @@ module debug #(
         uart_tx_data_next = tx_data_32[NB-1:NB-DATA_BITS];
         uart_tx_ready_next = 1;
         state_next = WAIT_TX;
+      end
+      WAIT_RX: begin
+        // La ultima instruccion deberia ser un HALT
+        if (o_instruction_data == `HALT_INSTRUCTION) begin
+          state_next = IDLE;
+          instruction_write_enable_next = 0;
+        end
+        else begin 
+            if (o_instruction_write_enable) begin
+              // Si ya escribi el address ahora si lo aumento
+              // si no hago esto va a arrancar en address 0x4 siempre (defasado) 
+              instruction_address_next = o_instruction_address + 4;
+            end
+            instruction_write_enable_next = 0;
+            if (i_uart_rx_ready) begin
+              instruction_data_buffer_next  = {o_instruction_data[23:0], i_uart_rx_data};
+              instruction_byte_counter_next = instruction_byte_counter + 1;
+              if (instruction_byte_counter_next == 0) state_next = WRITE_INSTRUCTION;
+              else state_next = WAIT_RX;
+            end
+        end      
       end
       WAIT_TX: begin
         if (i_uart_tx_done) begin
@@ -167,6 +221,10 @@ module debug #(
           end
         endcase
       end
+      WRITE_INSTRUCTION: begin
+        instruction_write_enable_next = 1;
+        state_next = WAIT_RX;
+      end
       default: begin
         state_next = IDLE;
         uart_tx_data_next = 0;
@@ -176,6 +234,9 @@ module debug #(
         mips_memory_address_next = 0;
         o_step = 0;
         fetch_cmd_next = CMD_FETCH_PC;
+        o_instruction_write_enable = 0;
+        o_instruction_address = 0;
+        o_instruction_data = 0;
       end
 
     endcase

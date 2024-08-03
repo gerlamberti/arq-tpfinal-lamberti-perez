@@ -23,6 +23,11 @@ module tb_debug;
     wire        o_step;
     wire [31:0] o_mips_memory_address;
 
+    // Outputs para escribir en memoria
+    wire        o_instruction_write_enable; // ***
+    wire [31:0] o_instruction_address;
+    wire [31:0] o_instruction_data;
+
     // Instantiate the Unit Under Test (UUT)
     debug #(
         .NB(32),
@@ -45,7 +50,10 @@ module tb_debug;
         .o_uart_tx_data(o_uart_tx_data),
         .o_uart_tx_ready(o_uart_tx_ready),
         .o_step(o_step),
-        .o_mips_memory_address(o_mips_memory_address)
+        .o_mips_memory_address(o_mips_memory_address),
+        .o_instruction_write_enable(o_instruction_write_enable),
+        .o_instruction_address(o_instruction_address),
+        .o_instruction_data(o_instruction_data)
     );    
 
     localparam TEST_PC_TO_SEND = 32'h1ba5e93f;
@@ -56,6 +64,8 @@ module tb_debug;
     initial i_reset = 1;
     
     reg [31:0] random_registers [0:NUMBER_REGISTERS-1];
+    reg [31:0] instructions [0:3]; 
+
     initial begin
         for (counter = 0; counter < NUMBER_REGISTERS; counter = counter + 1)
             random_registers[counter] = $random();  
@@ -255,6 +265,48 @@ module tb_debug;
                 $finish;
             end  
         end
+        #160;
+        // Tests de escritura de instrucciones
+        // Proceso para enviar el comando 'i'
+        i_uart_rx_data = 8'h69; // Comando 'i' para iniciar escritura de instrucciones
+        i_uart_rx_ready = 1; 
+        @(posedge i_clk);
+        i_uart_rx_ready = 0; 
+
+        // Envio cuatro instrucciones, la última es un HALT
+        instructions[0] = $random();
+        instructions[1] = $random();
+        instructions[2] = $random();
+        instructions[3] = `HALT_INSTRUCTION;
+        for (counter = 0; counter < 4; counter = counter + 1) begin
+            i_uart_rx_data = instructions[counter][31:24]; // 1er byte de la instruccion
+            #1;
+            i_uart_rx_ready = 1;
+            @(posedge i_clk);
+            i_uart_rx_ready = 0;
+            #40;
+            i_uart_rx_data = instructions[counter][23:16]; // 2do byte de la instruccion
+            i_uart_rx_ready = 1;
+            @(posedge i_clk);
+            i_uart_rx_ready = 0;
+            #40;
+            i_uart_rx_data = instructions[counter][15:8]; // 3er byte de la instruccion
+            i_uart_rx_ready = 1;
+            @(posedge i_clk);
+            i_uart_rx_ready = 0;
+            #40;
+            i_uart_rx_data = instructions[counter][7:0]; // 4to byte de la instruccion
+            i_uart_rx_ready = 1;
+            @(posedge i_clk);
+            
+            // Esperar a que la instrucción se escriba
+            @(posedge o_instruction_write_enable);
+            if (o_instruction_address !== counter * 4 ||
+                o_instruction_data !== instructions[counter]) begin
+                $finish;
+            end
+        end
+
         #200
         $finish;
     end

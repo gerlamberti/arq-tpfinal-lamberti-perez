@@ -29,3 +29,4 @@
 `define SUBU_FCODE 6'b100011
 `define XOR_FCODE 6'b100110
 
+`define HALT_INSTRUCTION 32'hffffffff
