@@ -88,11 +88,47 @@ module alu_control #(
                     end
                 endcase 
             end    
-            `ADDI_OPCODE: o_alu_operation = `ADD;
-            `BEQ_OPCODE: o_alu_operation = `SUB;
-            `BNE_OPCODE: o_alu_operation = `BNE;
-            `SW_OPCODE: o_alu_operation = `ADD;
-            `LW_OPCODE: o_alu_operation = `ADD;
+            `ADDI_OPCODE: begin 
+                o_alu_operation = `ADD;
+                o_shamt_ctrl = 1'b0;  
+            end
+            `BEQ_OPCODE: begin 
+                o_alu_operation = `SUB;
+                o_shamt_ctrl = 1'b0;  
+            end
+            `BNE_OPCODE: begin 
+                o_alu_operation = `BNE;
+                o_shamt_ctrl = 1'b0;  
+            end
+            `ANDI_OPCODE: begin 
+                o_alu_operation = `AND;
+                o_shamt_ctrl = 1'b0;  
+            end
+            `ORI_OPCODE: begin 
+                o_alu_operation = `OR;
+                o_shamt_ctrl = 1'b0;  
+            end
+            `XORI_OPCODE: begin 
+                o_alu_operation = `XOR;
+                o_shamt_ctrl = 1'b0;  
+            end
+            `LUI_OPCODE: begin 
+                o_alu_operation = `SLL; //`SLL16;
+                o_shamt_ctrl = 1'b0;  
+            end
+            `SLTI_OPCODE: begin 
+                o_alu_operation = `SLT;
+                o_shamt_ctrl = 1'b0;  
+            end
+
+            `SW_OPCODE: begin 
+                o_alu_operation = `ADD;
+                o_shamt_ctrl = 1'b0;  
+            end
+            `LW_OPCODE: begin 
+                o_alu_operation = `ADD;
+                o_shamt_ctrl = 1'b0;  
+            end
             default: begin
                 o_alu_operation = DEFAULT_ALU_OPERATION;
                 o_shamt_ctrl = DEFAULT_SHAMT_CTRL;
