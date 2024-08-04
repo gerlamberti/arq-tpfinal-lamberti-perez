@@ -126,3 +126,7 @@
 # Ignore build directories
 _build/
 _build_/
+
+# Ignore python cache files
+__pycache__/
+*.asm
