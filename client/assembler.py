@@ -151,6 +151,7 @@ def create_bin(asm_file, name_bin):
     count = 1
     with open(asm_file, 'r') as f:
         with open(name_bin, 'w') as out:
+            out.write(f"000000000000000000000000" + "\n")
             for line in f:
                 # Se obtiene el nombre de la instruc en la parte 0 y en la parte 1 los reg o datos
                 parts = line.strip().split(' ')
