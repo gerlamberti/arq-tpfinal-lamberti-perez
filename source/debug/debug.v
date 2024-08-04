@@ -22,6 +22,7 @@ module debug #(
     output [NB-1:0] o_mips_memory_address,
     output [DATA_BITS-1:0] o_uart_tx_data,
     output o_uart_tx_ready,
+    output reg o_uart_rx_reset,
     output reg o_step,
     output [NB_STATE-1:0] o_state_debug,
     // outputs para escribir el instruction memory
@@ -67,6 +68,7 @@ module debug #(
   reg [NB-1:0] mips_memory_address, mips_memory_address_next;
   reg [NB-1:0] instruction_address_next;
   reg instruction_write_enable_next;
+  reg uart_rx_reset_next;
 
 
   always @(posedge i_clk or posedge i_reset) begin
@@ -81,7 +83,9 @@ module debug #(
       fetch_cmd <= CMD_FETCH_PC;
       o_instruction_data <= 0;
       instruction_byte_counter <= 0;
+      o_instruction_address <= 0;
       o_instruction_write_enable <= 0;
+      o_uart_rx_reset <= 0;
     end else begin
       state                      <= state_next;
       tx_data_32                 <= tx_data_32_next;
@@ -95,6 +99,7 @@ module debug #(
       instruction_byte_counter   <= instruction_byte_counter_next;
       o_instruction_address      <= instruction_address_next;
       o_instruction_write_enable <= instruction_write_enable_next;
+      o_uart_rx_reset            <= uart_rx_reset_next;
     end
   end
 
@@ -111,7 +116,8 @@ module debug #(
     instruction_data_buffer_next = o_instruction_data;
     instruction_byte_counter_next = instruction_byte_counter;
     instruction_address_next = o_instruction_address;
-    instruction_write_enable_next = o_instruction_write_enable;
+    instruction_write_enable_next = 0;
+    uart_rx_reset_next = 0;
     case (state)
       IDLE: begin
         if (i_uart_rx_ready) begin
@@ -123,6 +129,7 @@ module debug #(
               instruction_address_next = 0;
               instruction_data_buffer_next = 0;
               instruction_byte_counter_next = 0;
+              uart_rx_reset_next = 1;
               state_next = WAIT_RX;
             end
             default: begin
@@ -146,21 +153,20 @@ module debug #(
         if (o_instruction_data == `HALT_INSTRUCTION) begin
           state_next = IDLE;
           instruction_write_enable_next = 0;
+        end else begin
+          if (o_instruction_write_enable) begin
+            // Si ya escribi el address ahora si lo aumento
+            // si no hago esto va a arrancar en address 0x4 siempre (defasado) 
+            instruction_address_next = o_instruction_address + 4;
+          end
+          instruction_write_enable_next = 0;
+          if (i_uart_rx_ready) begin
+            instruction_data_buffer_next  = {o_instruction_data[23:0], i_uart_rx_data};
+            instruction_byte_counter_next = instruction_byte_counter + 1;
+            if (instruction_byte_counter_next == 0) state_next = WRITE_INSTRUCTION;
+            else state_next = WAIT_RX;
+          end
         end
-        else begin 
-            if (o_instruction_write_enable) begin
-              // Si ya escribi el address ahora si lo aumento
-              // si no hago esto va a arrancar en address 0x4 siempre (defasado) 
-              instruction_address_next = o_instruction_address + 4;
-            end
-            instruction_write_enable_next = 0;
-            if (i_uart_rx_ready) begin
-              instruction_data_buffer_next  = {o_instruction_data[23:0], i_uart_rx_data};
-              instruction_byte_counter_next = instruction_byte_counter + 1;
-              if (instruction_byte_counter_next == 0) state_next = WRITE_INSTRUCTION;
-              else state_next = WAIT_RX;
-            end
-        end      
       end
       WAIT_TX: begin
         if (i_uart_tx_done) begin
@@ -234,9 +240,11 @@ module debug #(
         mips_memory_address_next = 0;
         o_step = 0;
         fetch_cmd_next = CMD_FETCH_PC;
-        o_instruction_write_enable = 0;
-        o_instruction_address = 0;
-        o_instruction_data = 0;
+        instruction_data_buffer_next = 0;
+        instruction_byte_counter_next = 0;
+        instruction_address_next = 0;
+        instruction_write_enable_next = 0;
+        uart_rx_reset_next = 0;
       end
 
     endcase

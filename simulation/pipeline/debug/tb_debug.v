@@ -20,6 +20,7 @@ module tb_debug;
     wire [NB_REG_O-1 : 0] o_mips_register_number;
     wire [7:0]  o_uart_tx_data;
     wire        o_uart_tx_ready;
+    wire        o_uart_rx_reset;
     wire        o_step;
     wire [31:0] o_mips_memory_address;
 
@@ -53,7 +54,8 @@ module tb_debug;
         .o_mips_memory_address(o_mips_memory_address),
         .o_instruction_write_enable(o_instruction_write_enable),
         .o_instruction_address(o_instruction_address),
-        .o_instruction_data(o_instruction_data)
+        .o_instruction_data(o_instruction_data),
+        .o_uart_rx_reset(o_uart_rx_reset)
     );    
 
     localparam TEST_PC_TO_SEND = 32'h1ba5e93f;
@@ -270,8 +272,9 @@ module tb_debug;
         // Proceso para enviar el comando 'i'
         i_uart_rx_data = 8'h69; // Comando 'i' para iniciar escritura de instrucciones
         i_uart_rx_ready = 1; 
+        
         @(posedge i_clk);
-        i_uart_rx_ready = 0; 
+        // i_uart_rx_ready = 0; 
 
         // Envio cuatro instrucciones, la última es un HALT
         instructions[0] = $random();
