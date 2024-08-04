@@ -2,6 +2,13 @@ import serial
 import time
 import binascii
 from colorama import init, Fore, Style
+from pprint import pprint
+import assembler
+
+def compile_instructions():
+    # Aquí puedes agregar la lógica de compilación necesaria
+    assembler.create_bin("ejemplo.asm", "entrada.bin")
+    print("Compilando instrucciones...")
 
 def compare_and_display(label, new_value, prev_value, color):
     if new_value != prev_value:
@@ -43,12 +50,56 @@ def main():
     try:
         while True:
             # Leer entrada del usuario y enviar a UART
-            user_input = input("Ingrese un comando para enviar: ")
-            ser.reset_input_buffer()
-            ser.write(user_input.encode())
+            user_input = input("Ingrese un comando para enviar: ").strip().lower()
+            ser.reset_input_buffer() # Esto lo meto porque si la placa hace un reset se manda un byte no se por que
+
+            if user_input == 'i':
+                compile_instructions()  # Llamar a la función de compilación
+                ser.write(b'i')  # Enviar la letra 'i' al módulo UART
+
+                # Leer contenido del archivo y enviar
+                file_path = input("Ingrese la ruta del archivo con instrucciones (por defecto entrada.bin):") or "entrada.bin"
+                try:
+                    with open(file_path, 'r') as file:
+                        lines = file.readlines()
+                        total_lines = len(lines)
+                        bytes_sent = 0
+
+                        ser.write(bytes(b'i'))  # Enviar la letra 'i' al módulo UART
+                        ser.reset_output_buffer()
+                        time.sleep(0.01)  # Ajustar el tiempo según sea necesario para la velocidad de UART
+                        for line_number, line in enumerate(lines, start=1):
+                            # Limpiar la línea y dividirla en bytes
+                            line = line.strip()
+                            if len(line) % 8 != 0:
+                                print(f"La línea {line_number} no tiene un múltiplo de 8 bits. Se omite.")
+                                continue
+                            
+                            for i in range(0, len(line), 8):
+                                byte_str = line[i:i+8]
+                                byte = int(byte_str, 2)  # Convertir binario a entero
+                                
+                                ser.write(bytes([byte]))  # Enviar el byte
+                                pprint([byte])  # Enviar el byte
+                                bytes_sent += 1
+
+                            # Mostrar progreso
+                            progress = (line_number / total_lines) * 100
+                            print(f"Progreso: {progress:.2f}% ({bytes_sent} bytes enviados)")
+
+                            time.sleep(0.01)  # Ajustar el tiempo según sea necesario para la velocidad de UART
+                except FileNotFoundError:
+                    print(f"No se pudo encontrar el archivo: {file_path}")
+                    continue
+                except Exception as e:
+                    print(f"Error al leer el archivo: {e}")
+                    continue
+
+            else:
+                ser.write(user_input.encode())
 
             # Leer respuesta de UART
-            if user_input.lower() == 's':
+            if user_input == 's':
                 # Leer y parsear los primeros 4 bytes como PC
                 pc_data = ser.read(4)
                 if len(pc_data) < 4:

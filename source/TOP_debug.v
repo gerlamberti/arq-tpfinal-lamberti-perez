@@ -18,6 +18,7 @@ module TOP_debug #(
   wire senial_tick;
   wire tick_completos_receptor;
   wire tick_completos_transmisor;
+  wire w_receptor_reset;
   wire comienzo_transmicion;
   wire [ancho_dato-1:0] salida_receptor;  //?????????????????????????????????????????
   wire [ancho_dato-1:0] entrada_transmisor_wire;  //?????????????????????????????????????????
@@ -37,6 +38,10 @@ module TOP_debug #(
                 w_mips_alu_result,
                 w_mips_mem_data,
                 w_debug_memory_address;
+  // Write to instruction memory
+  wire w_instruction_write_enable;
+  wire [NB-1:0] w_instruction_address;
+  wire [NB-1:0] w_instruction_data;
   /*-----------------------------------------------------------------------------------*/
   // instanciando el generador de baudio 
   GeneradorDeBaudios #(
@@ -56,7 +61,7 @@ module TOP_debug #(
   ) receptor (
       //------------------entradas------------------//
       .clk(clk),
-      .reset(reset),
+      .reset(w_receptor_reset),
       .RX(Entrada_RX),  //linea de recepcion
       .senial_generadorTick(senial_tick),  //entrada que proviene del generador de baudios
 
@@ -87,7 +92,11 @@ module TOP_debug #(
       .o_step(step),
       .o_state_debug(o_leds[3:0]),
       .o_mips_register_number(w_debug_mips_register_number),
-      .o_mips_memory_address(w_debug_memory_address)
+      .o_mips_memory_address(w_debug_memory_address),
+      .o_instruction_write_enable(w_instruction_write_enable),
+      .o_instruction_address(w_instruction_address),
+      .o_instruction_data(w_instruction_data),
+      .o_uart_rx_reset(w_receptor_reset)
   );
 
 
@@ -99,6 +108,9 @@ module TOP_debug #(
       .i_reset(reset),
       .i_debug_mips_register_number(w_debug_mips_register_number),
       .i_debug_address(w_debug_memory_address),
+      .i_instruction_write_enable(w_instruction_write_enable),
+      .i_instruction_address(w_instruction_address),
+      .i_instruction_data(w_instruction_data),
       .o_mips_pc(w_mips_pc),
       .o_mips_alu_result(w_mips_alu_result),
       .o_mips_register_data(w_mips_register_data),
