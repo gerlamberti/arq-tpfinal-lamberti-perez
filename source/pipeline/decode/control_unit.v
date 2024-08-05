@@ -85,6 +85,18 @@ module control_unit #(
       `J_OPCODE: begin
         o_jump <= 1'b1;
       end
+      `SB_OPCODE:begin
+        o_ALUSrc        <= `INMEDIATE_ALU_SRC;
+        o_mem_read      <= 1'b0; // no read mem
+        o_mem_write     <= 1'b1; // write mem
+        o_word_size     <= `BYTE_WORD;
+      end
+      `SH_OPCODE:begin
+        o_ALUSrc        <= `INMEDIATE_ALU_SRC;
+        o_mem_read      <= 1'b0; // no read mem
+        o_mem_write     <= 1'b1; // write mem
+        o_word_size     <= `HALF_WORD;
+      end
       `SW_OPCODE: begin
         o_ALUSrc        <= `INMEDIATE_ALU_SRC;
         o_mem_read      <= 1'b0;

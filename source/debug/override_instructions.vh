@@ -77,7 +77,7 @@
 //memory[13] = 32'h0000000D;
 //memory[14] = 32'h0000000F;
 
-// Instrucciones para sobreescribir el pipeline LH, LB, SB, SH y extras: LWU, LBU, LHU
+// Instrucciones para sobreescribir el pipeline LH, LB, LWU, LBU, LHU y SB, SH
 
 memory[0] = 32'h00000000;
 memory[1] = {`LB_OPCODE, 5'd1, 5'd7, 16'd7};  // $7 <- Memory[base:$1 + offset:7]
@@ -92,5 +92,5 @@ memory[9] = {`LWU_OPCODE,  5'd5, 5'd11, 16'd3};  // $11 <- Memory[base:$5 + offs
 memory[10] = 32'h0000000A;
 memory[11] = {`LW_OPCODE,  5'd6, 5'd12, 16'd3}; // $12 <- Memory[base:$6 + offset:3]
 memory[12] = 32'h0000000C;
-memory[13] = 32'h0000000D;
-memory[14] = 32'h0000000F;
+memory[13] = {`SB_OPCODE,  5'd2, 5'd7, 16'd3}; // Memory[base:$2 + offset:3] <- $7
+memory[14] = {`SH_OPCODE,  5'd5, 5'd8, 16'd3}; // Memory[base:$5 + offset:3] <- $8
