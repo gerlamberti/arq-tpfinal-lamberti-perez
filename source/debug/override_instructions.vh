@@ -77,3 +77,20 @@ memory[14] = 32'h0000000F;
 //memory[13] = 32'h0000000D;
 //memory[14] = 32'h0000000F;
 
+// Instrucciones para sobreescribir el pipeline LH, LB, SB, SH y extras: LWU, LBU, LHU
+
+// memory[0] = 32'h00000000;
+//memory[1] = {`ADDI_OPCODE, 5'd1, 5'd7, 16'd3};  // $7 <- $1 + 3             = 4 = 0100
+//memory[2] = 32'h00000003;
+//memory[3] = {`ANDI_OPCODE, 5'd6, 5'd8, 16'd15}; // $8 <- $6 & 15            = 6 = 0110
+//memory[4] = 32'h00000004;
+//memory[5] = {`ORI_OPCODE,  5'd6, 5'd9, 16'd15}; // $9 <- $6 | 15             = 15 = 1111
+//memory[6] = 32'h00000006;
+//memory[7] = {`XORI_OPCODE, 5'd3, 5'd10, 16'd1}; // $10 <- $3 ^ 1            = 2  = 0010
+//memory[8] = 32'h00000008;
+//memory[9] = {`LUI_OPCODE,  5'd0, 5'd11, 16'd61440};  // $11 <- 61440 << 16            = 4026531840  
+//memory[10] = 32'h0000000A;
+//memory[11] = {`SLTI_OPCODE,  5'd5, 5'd12, 16'd7967}; // $12 <- ( $5 < 7967)? 1:0
+//memory[12] = 32'h0000000C;
+//memory[13] = 32'h0000000D;
+//memory[14] = 32'h0000000F;
