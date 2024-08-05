@@ -113,21 +113,48 @@ module alu_control #(
                 o_shamt_ctrl = 1'b0;  
             end
             `LUI_OPCODE: begin 
-                o_alu_operation = `LUI; //`SLL16;
+                o_alu_operation = `LUI;
                 o_shamt_ctrl = 1'b0;  
             end
             `SLTI_OPCODE: begin 
                 o_alu_operation = `SLT;
                 o_shamt_ctrl = 1'b0;  
             end
-
+            `SB_OPCODE: begin
+                o_alu_operation = `ADD;
+                o_shamt_ctrl = 1'b0;  
+            end
+            `SH_OPCODE: begin
+                o_alu_operation = `ADD;
+                o_shamt_ctrl = 1'b0;  
+            end
             `SW_OPCODE: begin 
                 o_alu_operation = `ADD;
                 o_shamt_ctrl = 1'b0;  
             end
+            `LB_OPCODE: begin
+                o_alu_operation = `ADD;  // INSTRUCCION ITYPE - ADDI -> ADD de ALU
+                o_shamt_ctrl = 1'b0; // Elige data_a
+            end
+            `LBU_OPCODE: begin
+                o_alu_operation = `ADD;
+                o_shamt_ctrl = 1'b0; // Elige data_a
+            end
+            `LH_OPCODE: begin
+                o_alu_operation = `ADD;
+                o_shamt_ctrl = 1'b0; // Elige data_a
+            end
+            `LHU_OPCODE: begin
+                o_alu_operation = `ADD;
+                o_shamt_ctrl = 1'b0; // Elige data_a
+            end
             `LW_OPCODE: begin 
                 o_alu_operation = `ADD;
                 o_shamt_ctrl = 1'b0;  
+            end
+            `LWU_OPCODE  : begin
+                o_alu_operation = `ADD;
+                o_shamt_ctrl = 1'b0; // Elige data_a
             end
             default: begin
                 o_alu_operation = DEFAULT_ALU_OPERATION;
