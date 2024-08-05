@@ -37,16 +37,18 @@ module ID #(
     output                      o_jump,
     output                      o_signed,
     output [            NB-1:0] o_jump_addr,
-    output [NB_SIZE_TYPE-1 : 0] o_word_size
+    output [NB_SIZE_TYPE-1 : 0] o_word_size,
+    output [          REGS-1:0] o_dir_rs,
+    output [          REGS-1:0] o_dir_rt
 );
 
-  wire [  REGS-1:0] w_i_dir_rs;  // este - ID
-  wire [  REGS-1:0] w_i_dir_rt;  // este - ID
   wire [  REGS-1:0] w_i_dir_shamt;  // este - ID
   wire [CTRLNB-1:0] w_i_special;  // este UC
   wire [CTRLNB-1:0] w_id_instr_control;  // este UC
   wire [INBITS-1:0] w_i_id_inmediate;  // este - ID
-
+  
+  wire [  REGS-1:0] w_i_dir_rt;
+  wire [  REGS-1:0] w_i_dir_rs;
   wire [       1:0] w_extension_mode;
   wire [       1:0] w_o_ALUop;
 
@@ -54,13 +56,14 @@ module ID #(
   assign w_i_id_inmediate = i_instruction[INBITS-1:0];
   assign w_i_dir_rs               =    i_instruction    [INBITS+REGS+REGS-1:INBITS+REGS];//INBITS+RT+RS-1=16+5+5-1=25; INBITS+RT=16+5=21; [25-21]
   assign w_i_dir_rt               =    i_instruction    [INBITS+REGS-1:INBITS];//INBITS+RT-1=16+5-1=20; INBITS=16; [20-16]
-  assign w_i_dir_shamt            =    i_instruction    [INBITS-REGS-1:CTRLNB];
+  assign w_i_dir_shamt = i_instruction[INBITS-REGS-1:CTRLNB];
   assign o_intruction_op_code = i_instruction[NB-1:NB-CTRLNB];
   assign o_intruction_funct_code = i_instruction[CTRLNB-1:0];
-
+  assign o_dir_rs = w_i_dir_rs;
+  assign o_dir_rt = w_i_dir_rt;
   //  Calculo de jump address
   //  PC4[31:28] || instr_index || 00
-  assign o_jump_addr = {i_pc4[NB-1:28], i_instruction[25:0], 2'b00}; 
+  assign o_jump_addr = {i_pc4[NB-1:28], i_instruction[25:0], 2'b00};
 
   control_unit #(
       .NB(NB)
@@ -111,11 +114,11 @@ module ID #(
   );
 
   extensor_shamt #(
-      .NB(NB),
+      .NB  (NB),
       .REGS(REGS)
   ) u_extensor_shamt (
-      .i_shamt   (w_i_dir_shamt),
-      .o_shamt   (o_shamt)
+      .i_shamt(w_i_dir_shamt),
+      .o_shamt(o_shamt)
   );
 
 endmodule
