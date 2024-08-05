@@ -119,7 +119,7 @@ module tb_pipeline_instruction_ANDI_ORI_XORI_LUI;
     if (o_mips_register_data !== expected_mips_register_data) $finish;
 
     $display("Fin de los tests. Todo exitoso.");
-    $finish;
+    $finish; // TODO: comparar el registro 11 del GPR y comparar si es valido.
   end
 
 endmodule

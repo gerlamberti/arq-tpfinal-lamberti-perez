@@ -113,7 +113,7 @@ module alu_control #(
                 o_shamt_ctrl = 1'b0;  
             end
             `LUI_OPCODE: begin 
-                o_alu_operation = `SLL; //`SLL16;
+                o_alu_operation = `LUI; //`SLL16;
                 o_shamt_ctrl = 1'b0;  
             end
             `SLTI_OPCODE: begin 
