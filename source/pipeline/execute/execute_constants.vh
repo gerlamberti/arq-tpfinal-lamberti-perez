@@ -11,3 +11,4 @@
 `define NOR 4'b1100
 `define SLL 4'b0011 // A<<B (shamt)
 `define BNE 4'b1001
+`define LUI 4'b1011 // B << 16

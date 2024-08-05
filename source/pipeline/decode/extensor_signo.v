@@ -20,8 +20,6 @@ module Extensor_Signo #(
             //1000 0000 0000 0000 -> 1111 1111 1111 1111 1000 0000 0000 0000
             2'b01:      result_extension  <=  {{e_NB{1'b0}}, i_id_inmediate};
             //1000 0000 0000 0000 -> 0000 0000 0000 0000 1000 0000 0000 0000
-            2'b10:      result_extension  <=  {i_id_inmediate,{e_NB{1'b0}}};
-            //1000 0000 0000 0000 -> 1000 0000 0000 0000 0000 0000 0000 0000   
             default:    result_extension  <= -1;
         endcase
     end
