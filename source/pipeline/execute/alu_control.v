@@ -146,7 +146,7 @@ module alu_control #(
             end
             `LWU_OPCODE  : begin
                 o_alu_operation = `ADD;
-                o_shamt_ctrl = 1'b1; // Elige data_a
+                o_shamt_ctrl = 1'b0; // Elige data_a
             end
             default: begin
                 o_alu_operation = DEFAULT_ALU_OPERATION;

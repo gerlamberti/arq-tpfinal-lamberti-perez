@@ -89,7 +89,7 @@ module ID_EX #(
         o_reg_write <= i_reg_write;
         o_reg_dir_to_write <= i_reg_dir_to_write;
         o_jump <= i_jump;
-        o_signed <= o_signed;
+        o_signed <= i_signed;
         o_jump_addr <= i_jump_addr;
       end
     end
