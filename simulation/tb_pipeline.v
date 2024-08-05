@@ -98,8 +98,8 @@ module tb_PIPELINE;
     for (i = 0; i < TAM_DATA_MEMORY; i = i + 1) begin
       #1;
       i_debug_address = i * 4;
-      if (o_mips_data_memory !== 0) $finish;
       #1;
+      if (o_mips_data_memory !== i) $finish;
     end
     i_step = 1;
     @(o_mips_pc);  // PC = 20; Ciclo 5;

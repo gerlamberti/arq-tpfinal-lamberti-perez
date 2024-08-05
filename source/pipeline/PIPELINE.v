@@ -6,17 +6,19 @@ module PIPELINE #(
     parameter NB_SIZE_TYPE = 3,
     parameter NB_REGS = 5
 ) (
-    input i_clk,
-    input i_step,
-    input i_reset,
-    input [4:0] i_debug_mips_register_number,
-    input [NB-1:0] i_debug_address,
+    input           i_clk,
+    input           i_step,
+    input           i_reset,
+    input  [   4:0] i_debug_mips_register_number,
+    input  [NB-1:0] i_debug_address,
+    input           i_instruction_write_enable,
+    input  [NB-1:0] i_instruction_address,
+    input  [NB-1:0] i_instruction_data,
     output [NB-1:0] o_mips_pc,
     output [NB-1:0] o_mips_alu_result,
     output [NB-1:0] o_mips_register_data,
     output [NB-1:0] o_mips_data_memory
 );
-
   // Wires for inter-stage communication
   wire [NB-1:0] w_if_instruction, w_if_id_pc4;
   wire [NB-1:0] w_id_instruction;
@@ -78,6 +80,8 @@ module PIPELINE #(
   wire [NB-1:0] w_wb_data_to_register;
   wire [NB_REGS-1:0] w_wb_reg_dir_to_write;
   // Instruction Fetch (IF) stage
+    assign o_mips_pc = w_if_instruction;
+
   IF #(
       .NB(NB),
       .TAM_I(256)
@@ -90,8 +94,11 @@ module PIPELINE #(
       .i_jump(w_ex_jump),
       .i_jump_addr(w_ex_jump_addr),
       .i_branch_addr(w_mem_branch_addr),
+      .i_instruction_write_enable(i_instruction_write_enable),
+      .i_instruction_address(i_instruction_address),
+      .i_instruction_data(i_instruction_data),
       .o_instruction(w_if_instruction),
-      .o_IF_pc(o_mips_pc),
+      // TODO: descomentar .o_IF_pc(o_mips_pc),
       .o_IF_pc4(w_if_id_pc4)
   );
 
