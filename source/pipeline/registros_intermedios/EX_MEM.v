@@ -12,7 +12,7 @@ module EX_MEM #(
     input                    i_branch,
     input [          NB-1:0] i_alu_result,
     input [          NB-1:0] i_branch_addr,
-    input [          NB-1:0] i_data_b,
+    input [          NB-1:0] i_data_b_to_write,
     input                    i_mem_read,
     input                    i_mem_write,
     input                    i_reg_write,
@@ -23,7 +23,7 @@ module EX_MEM #(
 
     output reg                    o_cero,
     output reg [          NB-1:0] o_alu_result,
-    output reg [          NB-1:0] o_data_b,
+    output reg [          NB-1:0] o_data_b_to_write,
     output reg                    o_mem_read,
     output reg                    o_mem_write,
     output reg                    o_mem_to_reg,
@@ -47,7 +47,7 @@ module EX_MEM #(
       o_word_size        <= 0;
       o_branch           <= 0;
       o_branch_addr      <= 0;
-      o_data_b           <= 0;
+      o_data_b_to_write  <= 0;
       o_signed           <= 0;
     end else begin
       if (i_step) begin
@@ -61,7 +61,7 @@ module EX_MEM #(
         o_word_size        <= i_word_size;
         o_branch           <= i_branch;
         o_branch_addr      <= i_branch_addr;
-        o_data_b           <= i_data_b;
+        o_data_b_to_write  <= i_data_b_to_write;
         o_signed           <= i_signed;
       end
     end
