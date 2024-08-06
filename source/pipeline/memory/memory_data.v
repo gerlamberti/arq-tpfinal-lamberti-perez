@@ -35,9 +35,9 @@ module memory_data #(
 
   always @(posedge i_clk) begin
     if (i_reset) begin
-        for (i = 0; i < TAM; i = i + 1) begin
-          memory[i] <= i; // TODO: dejar en 0 cuando presentemos
-        end
+      for (i = 0; i < TAM; i = i + 1) begin
+        memory[i] <= i; // TODO: dejar en 0 cuando presentemos
+      end
     end
     if (i_step) begin:step_block
       if (i_mem_write) begin

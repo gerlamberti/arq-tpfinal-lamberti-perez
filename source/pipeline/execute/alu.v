@@ -39,6 +39,8 @@ module ALU #(
                 result  =   i_data_b >> i_data_a; // rd <- rt >> sa
       `SRA:
                 result  =    $signed(i_data_b) >>> i_data_a; // rd <- rt >> sa (arihtmeric)
+      `LUI:
+                result  =   i_data_b << 16; // rt <- inmediate << 16
       default:
                 result  =   -1;
     endcase
