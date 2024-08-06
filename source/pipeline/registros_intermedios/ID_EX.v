@@ -28,7 +28,8 @@ module ID_EX #(
     input                      i_jump,
     input                      i_signed,
     input [            NB-1:0] i_jump_addr,
-
+    input [       NB_REGS-1:0] i_dir_rs,
+    input [       NB_REGS-1:0] i_dir_rt,
 
 
     output reg                      o_signed,
@@ -48,7 +49,9 @@ module ID_EX #(
     output reg                      o_reg_write,
     output reg [       NB_REGS-1:0] o_reg_dir_to_write,
     output reg                      o_jump,
-    output reg [            NB-1:0] o_jump_addr
+    output reg [            NB-1:0] o_jump_addr,
+    output reg [       NB_REGS-1:0] o_dir_rs,
+    output reg [       NB_REGS-1:0] o_dir_rt
 );
 
   always @(negedge i_clk) begin
@@ -71,6 +74,8 @@ module ID_EX #(
       o_jump <= 0;
       o_signed <= 0;
       o_jump_addr <= 0;
+      o_dir_rs <= 0;
+      o_dir_rt <= 0;
     end else begin
       if (i_step) begin
         o_pc4 <= i_pc4;
@@ -91,6 +96,8 @@ module ID_EX #(
         o_jump <= i_jump;
         o_signed <= i_signed;
         o_jump_addr <= i_jump_addr;
+        o_dir_rs <= i_dir_rs;
+        o_dir_rt <= i_dir_rt;
       end
     end
   end
