@@ -56,15 +56,17 @@ module PIPELINE #(
   wire w_ex_jump;
   wire [NB-1:0] w_ex_jump_addr;
   wire [NB_SIZE_TYPE-1:0] w_ex_word_size;
-  wire [NB-1:0] w_ex_branch_addr;
+  wire [NB-1:0] w_ex_branch_addr, w_ex_data_b_to_write;
   wire [NB_REGS-1:0] w_ex_reg_dir_to_write, w_fwd_reg_dir_rs, w_fwd_reg_dir_rt;
-  wire [1:0] w_fwd_ex_a, w_fwd_ex_b;
+
+  wire [1:0] w_fwd_ex_a, w_fwd_ex_b, w_fwd_ex_mux;
   wire w_flush_ex_mem;
+
 
   // Wires for MEM stage
   wire w_mem_cero;
   wire [NB-1:0] w_mem_alu_result;
-  wire [NB-1:0] w_mem_data_b;
+  wire [NB-1:0] w_mem_data_b_to_write;
   wire w_mem_mem_read;
   wire w_mem_mem_write;
   wire w_mem_signed;
@@ -235,6 +237,8 @@ module PIPELINE #(
       .i_wb_fwd_data(w_wb_data_to_register),
       .i_fwd_a(w_fwd_ex_a),
       .i_fwd_b(w_fwd_ex_b),
+      .i_forwarding_mux(w_fwd_ex_mux),
+      .o_data_b_to_write(w_ex_data_b_to_write),
       .o_cero(w_ex_cero),
       .o_branch_addr(w_ex_branch_addr),
       .o_alu_result(w_ex_alu_result)
@@ -251,7 +255,7 @@ module PIPELINE #(
       .i_flush(w_flush_ex_mem),
       .i_cero(w_ex_cero),
       .i_alu_result(w_ex_alu_result),
-      .i_data_b(w_ex_data_b),
+      .i_data_b_to_write(w_ex_data_b_to_write),
       .i_mem_read(w_ex_mem_read),
       .i_mem_write(w_ex_mem_write),
       .i_mem_to_reg(w_ex_mem_to_reg),
@@ -262,7 +266,7 @@ module PIPELINE #(
       .i_branch(w_ex_branch),
       .i_branch_addr(w_ex_branch_addr),
       .o_alu_result(w_mem_alu_result),
-      .o_data_b(w_mem_data_b),
+      .o_data_b_to_write(w_mem_data_b_to_write),
       .o_mem_read(w_mem_mem_read),
       .o_mem_write(w_mem_mem_write),
       .o_mem_to_reg(w_mem_mem_to_reg),
@@ -287,7 +291,7 @@ module PIPELINE #(
       .i_mem_read(w_mem_mem_read),
       .i_signed(w_mem_signed),
       .i_debug_address(i_debug_address),
-      .i_data_b_to_write(w_mem_data_b),
+      .i_data_b_to_write(w_mem_data_b_to_write),
       .i_word_size(w_mem_word_size),
       .i_mem_write(w_mem_mem_write),
       .i_branch(w_mem_branch),
@@ -340,7 +344,8 @@ module PIPELINE #(
       .i_WB_write_reg(w_wb_reg_write),     // Si se quiere escribir en un Registro, valor desde la etapa WRITE-BACK
 
       .o_forwarding_a(w_fwd_ex_a),  // Si se forwardea el valor de A
-      .o_forwarding_b(w_fwd_ex_b)   // Si se forwardea el valor de B
+      .o_forwarding_b(w_fwd_ex_b),   // Si se forwardea el valor de B
+      .o_forwarding_mux(w_fwd_ex_mux)
   );
 
     stall_unit #(

@@ -13,13 +13,15 @@ module forwarding_unit #(
         input                      i_WB_write_reg,     // Si se quiere escribir en un Registro, valor desde la etapa WRITE-BACK
         
         output reg  [1:0]   o_forwarding_a,      // Si se forwardea el valor de A
-        output reg  [1:0]   o_forwarding_b      // Si se forwardea el valor de B
+        output reg  [1:0]   o_forwarding_b,      // Si se forwardea el valor de B
+        output reg  [1:0]   o_forwarding_mux     // Dato normal(10), Dato de WriteBack (01), Dato de Memoria (00)(Elije en el mux de EXECUTE)
     );
     always@(*) begin
         // Si ninguna de las señales de escritura en registros está activa, nuevamente, se restablecen las salidas a valores predeterminados.
         if((i_MEM_write_reg == 0) && (i_WB_write_reg==0)) begin
             o_forwarding_a      = 2'b0;
             o_forwarding_b      = 2'b0;
+            o_forwarding_mux    = 2'b10;        // Dato normal
         end
         
         //#############################################################
@@ -36,6 +38,7 @@ module forwarding_unit #(
         
         if((i_EX_MEM_rd == i_rs) && i_MEM_write_reg) begin
             o_forwarding_a      = 2'b01;        // El dato viene de MEM
+            o_forwarding_mux    = 2'b10;        // Dato normal
         end
         // Si el registro de destino en la etapa MEMORY (i_MEM_WB_rd) coincide con el registro fuente de A (i_rs) 
         // y tambien 
@@ -45,9 +48,11 @@ module forwarding_unit #(
         //      o_forwarding_mux en   2'b10.
         else if ((i_MEM_WB_rd == i_rs) && i_WB_write_reg) begin
             o_forwarding_a      = 2'b10;        // El dato viene de WB
+            o_forwarding_mux    = 2'b10;        // Dato normal
         end
         else begin
             o_forwarding_a      = 2'b0;         // No hay forwarding para A
+            o_forwarding_mux    = 2'b10;        // Dato normal
         end
 
         //#############################################################
@@ -59,21 +64,26 @@ module forwarding_unit #(
         if((i_EX_MEM_rd == i_rt) && i_MEM_write_reg) begin
             if(i_EX_mem_write) begin            // Hay Store
                 o_forwarding_b      = 2'b00;    // No forwardeo
+                o_forwarding_mux    = 2'b00;    // forwardea reg de EX_MEM para store // Dato de Memoria
             end
             else begin
                 o_forwarding_b      = 2'b01;    // El dato viene de MEM
+                o_forwarding_mux    = 2'b10;    // Dato normal
             end
         end
         else if ((i_MEM_WB_rd == i_rt) && i_WB_write_reg) begin
             if(i_EX_mem_write) begin            // Hay store
                 o_forwarding_b      = 2'b00;    // No forwardeo
+                o_forwarding_mux    = 2'b01;    // Dato de WriteBack (01)
             end
             else begin
                 o_forwarding_b      = 2'b10;    // El dato viene de WB
+                o_forwarding_mux    = 2'b10;    // Dato normal
             end
         end
         else begin
             o_forwarding_b      = 2'b0;         // No hay forwarding para B
+            o_forwarding_mux    = 2'b10;        // Dato normal
         end
     end
     

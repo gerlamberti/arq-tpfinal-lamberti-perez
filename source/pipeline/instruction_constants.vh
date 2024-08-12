@@ -1,13 +1,28 @@
 
 // Opcodes
-`define RTYPE_OPCODE    6'b000000
-`define ADDI_OPCODE     6'b001000
-`define ANDI_OPCODE     6'b001100 
-`define BEQ_OPCODE      6'b000100
-`define BNE_OPCODE      6'b000101
-`define SW_OPCODE       6'h2b
-`define LW_OPCODE       6'h23
-`define J_OPCODE        6'h02
+`define RTYPE_OPCODE 6'h00
+`define BEQ_OPCODE   6'h04
+`define BNE_OPCODE   6'h05 
+`define ADDI_OPCODE  6'h08 
+`define SLTI_OPCODE  6'h0a 
+`define ANDI_OPCODE  6'h0c 
+`define ORI_OPCODE   6'h0d 
+`define XORI_OPCODE  6'h0e 
+`define LUI_OPCODE   6'h0f 
+`define LB_OPCODE    6'h20 
+`define LH_OPCODE    6'h21 
+`define LHU_OPCODE   6'h22 
+`define LW_OPCODE    6'h23 
+`define LWU_OPCODE   6'h24 
+`define LBU_OPCODE   6'h25 
+`define SB_OPCODE    6'h28 
+`define SH_OPCODE    6'h29 
+`define SW_OPCODE    6'h2b 
+`define J_OPCODE     6'h02 
+`define JAL_OPCODE   6'h03 
+`define JALR_FUNCT   6'h09
+`define JR_FUNCT     6'h08
+`define HALT_OPCODE  6'h3f
 
 
 
