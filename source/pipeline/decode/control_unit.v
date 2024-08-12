@@ -11,6 +11,7 @@ module control_unit #(
     parameter NB_OPCODE = 6
 ) (
     input [NB-1:0] i_instruction,
+    input i_flush,
 
     output reg                      o_ALUSrc,
     output reg                      o_mem_read,
@@ -30,91 +31,90 @@ module control_unit #(
   wire [  NB_REGS-1:0] i_rd = i_instruction[15:11];
   wire [NB_OPCODE-1:0] i_func_code = i_instruction[5:0];
 
-  always @(*) begin
-    o_ALUSrc <= 0;
-    o_mem_read <= 0;
-    o_mem_write <= 0;
-    o_mem_to_reg <= 0;
-    o_reg_write <= 0;
-    o_reg_dir_to_write <= 0;
-    o_branch <= 0;
-    o_jump <= 0;
-    o_ExtensionMode <= 0;
-    o_signed <= 0;
+  `define RESET_BLOCK \
+    o_ALUSrc <= `RT_ALU_SRC; \
+    o_mem_read <= 0; \
+    o_mem_write <= 0; \
+    o_mem_to_reg <= 0; \
+    o_reg_write <= 0; \
+    o_reg_dir_to_write <= 0; \
+    o_branch <= 0; \
+    o_jump <= 0; \
+    o_ExtensionMode <= `SIGNED_EXTENSION_MODE; \
+    o_signed <= 0; \
     o_word_size <= `COMPLETE_WORD;
 
-    case (i_opcode)
-      `RTYPE_OPCODE: begin
-        o_ALUSrc           <= `RT_ALU_SRC;
-        o_ExtensionMode    <= `SIGNED_EXTENSION_MODE;
-        o_mem_read         <= 1'b0;
-        o_mem_write        <= 1'b0;
-        o_reg_write        <= 1'b1;
-        o_branch           <= 1'b0;
-        o_jump             <= 1'b0;
-        o_word_size        <= 3'b000;
-        o_reg_dir_to_write <= i_rd;
-      end
 
-      `ADDI_OPCODE: begin
-        o_ALUSrc           <= `INMEDIATE_ALU_SRC;
-        o_ExtensionMode    <= `SIGNED_EXTENSION_MODE;
-        o_mem_read         <= 1'b0;
-        o_mem_write        <= 1'b0;
-        o_reg_write        <= 1'b1;
-        o_branch           <= 1'b0;
-        o_jump             <= 1'b0;
-        o_word_size        <= 3'b000;
-        o_reg_dir_to_write <= i_rt;
+  always @(*) begin
+    `RESET_BLOCK
+    if (i_flush) begin
+      `RESET_BLOCK
+    end else begin
+      case (i_opcode)
+        `RTYPE_OPCODE: begin
+          o_ALUSrc           <= `RT_ALU_SRC;
+          o_ExtensionMode    <= `SIGNED_EXTENSION_MODE;
+          o_mem_read         <= 1'b0;
+          o_mem_write        <= 1'b0;
+          o_reg_write        <= 1'b1;
+          o_branch           <= 1'b0;
+          o_jump             <= 1'b0;
+          o_word_size        <= 3'b000;
+          o_reg_dir_to_write <= i_rd;
+        end
 
-      end
+        `ADDI_OPCODE: begin
+          o_ALUSrc           <= `INMEDIATE_ALU_SRC;
+          o_ExtensionMode    <= `SIGNED_EXTENSION_MODE;
+          o_mem_read         <= 1'b0;
+          o_mem_write        <= 1'b0;
+          o_reg_write        <= 1'b1;
+          o_branch           <= 1'b0;
+          o_jump             <= 1'b0;
+          o_word_size        <= 3'b000;
+          o_reg_dir_to_write <= i_rt;
 
-      `ANDI_OPCODE: begin
-        o_ALUSrc           <= `INMEDIATE_ALU_SRC;
-        o_ExtensionMode    <= `UNSIGNED_EXTENSION_MODE;
-        o_mem_read         <= 1'b0;
-        o_mem_write        <= 1'b0;
-        o_reg_write        <= 1'b1;
-        o_branch           <= 1'b0;
-        o_jump             <= 1'b0;
-        o_word_size        <= 3'b000;
-        o_reg_dir_to_write <= i_rt;
-      end
-      `BEQ_OPCODE, `BNE_OPCODE: begin
-        o_ALUSrc        <= `RT_ALU_SRC;
-        o_ExtensionMode <= `SIGNED_EXTENSION_MODE;
-        o_branch        <= 1'b1;
-      end
-      `J_OPCODE: begin
-        o_jump <= 1'b1;
-      end
-      `SW_OPCODE: begin
-        o_ALUSrc        <= `INMEDIATE_ALU_SRC;
-        o_mem_read      <= 1'b0;
-        o_mem_write     <= 1'b1;
-        o_ExtensionMode <= `SIGNED_EXTENSION_MODE;
-        o_word_size     <= `COMPLETE_WORD;
-      end
-      `LW_OPCODE: begin
-        o_ALUSrc           <= `INMEDIATE_ALU_SRC;
-        o_mem_read         <= 1'b1;  // read mem
-        o_mem_write        <= 1'b0;  // no write mem
-        o_mem_to_reg       <= 1'b1;  // read salida data memory
-        o_reg_write        <= 1'b1;  // escribe en rt
-        o_signed           <= 1'b1;  // solo se usa en los loads
-        o_reg_dir_to_write <= i_rt;
-      end
-      default: begin
-        o_ALUSrc           <= `RT_ALU_SRC;
-        o_ExtensionMode    <= `SIGNED_EXTENSION_MODE;
-        o_mem_read         <= 1'b0;
-        o_mem_write        <= 1'b0;
-        o_reg_write        <= 1'b0;
-        o_branch           <= 1'b0;
-        o_jump             <= 1'b0;
-        o_word_size        <= `COMPLETE_WORD;
-        o_reg_dir_to_write <= 0;
-      end
-    endcase
+        end
+
+        `ANDI_OPCODE: begin
+          o_ALUSrc           <= `INMEDIATE_ALU_SRC;
+          o_ExtensionMode    <= `UNSIGNED_EXTENSION_MODE;
+          o_mem_read         <= 1'b0;
+          o_mem_write        <= 1'b0;
+          o_reg_write        <= 1'b1;
+          o_branch           <= 1'b0;
+          o_jump             <= 1'b0;
+          o_word_size        <= 3'b000;
+          o_reg_dir_to_write <= i_rt;
+        end
+        `BEQ_OPCODE, `BNE_OPCODE: begin
+          o_ALUSrc        <= `RT_ALU_SRC;
+          o_ExtensionMode <= `SIGNED_EXTENSION_MODE;
+          o_branch        <= 1'b1;
+        end
+        `J_OPCODE: begin
+          o_jump <= 1'b1;
+        end
+        `SW_OPCODE: begin
+          o_ALUSrc        <= `INMEDIATE_ALU_SRC;
+          o_mem_read      <= 1'b0;
+          o_mem_write     <= 1'b1;
+          o_ExtensionMode <= `SIGNED_EXTENSION_MODE;
+          o_word_size     <= `COMPLETE_WORD;
+        end
+        `LW_OPCODE: begin
+          o_ALUSrc           <= `INMEDIATE_ALU_SRC;
+          o_mem_read         <= 1'b1;  // read mem
+          o_mem_write        <= 1'b0;  // no write mem
+          o_mem_to_reg       <= 1'b1;  // read salida data memory
+          o_reg_write        <= 1'b1;  // escribe en rt
+          o_signed           <= 1'b1;  // solo se usa en los loads
+          o_reg_dir_to_write <= i_rt;
+        end
+        default: begin
+          `RESET_BLOCK
+        end
+      endcase
+    end
   end
 endmodule

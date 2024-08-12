@@ -19,6 +19,8 @@ module ID #(
     input [REGS-1:0] i_wb_reg_dir,
     input [  NB-1:0] i_pc4,
 
+    input i_flush,
+
     output [            NB-1:0] o_data_a,
     output [            NB-1:0] o_data_b,
     output [            NB-1:0] o_mips_register_data,
@@ -46,7 +48,7 @@ module ID #(
   wire [CTRLNB-1:0] w_i_special;  // este UC
   wire [CTRLNB-1:0] w_id_instr_control;  // este UC
   wire [INBITS-1:0] w_i_id_inmediate;  // este - ID
-  
+
   wire [  REGS-1:0] w_i_dir_rt;
   wire [  REGS-1:0] w_i_dir_rs;
   wire [       1:0] w_extension_mode;
@@ -69,6 +71,7 @@ module ID #(
       .NB(NB)
   ) u_Control_Unidad (
       .i_instruction     (i_instruction),
+      .i_flush           (i_flush),
       .o_ALUSrc          (o_alu_src),
       .o_ExtensionMode   (w_extension_mode),
       .o_mem_read        (o_mem_read),

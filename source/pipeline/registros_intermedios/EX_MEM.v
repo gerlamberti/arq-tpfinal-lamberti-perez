@@ -20,6 +20,7 @@ module EX_MEM #(
     input                    i_signed,
     input [     NB_REGS-1:0] i_reg_dir_to_write,
     input [NB_SIZE_TYPE-1:0] i_word_size,
+    input                    i_flush,
 
     output reg                    o_cero,
     output reg [          NB-1:0] o_alu_result,
@@ -50,7 +51,20 @@ module EX_MEM #(
       o_data_b           <= 0;
       o_signed           <= 0;
     end else begin
-      if (i_step) begin
+      if (i_flush) begin
+        o_cero             <= 0;
+        o_alu_result       <= i_alu_result;
+        o_mem_read         <= 0;
+        o_mem_write        <= 0;
+        o_mem_to_reg       <= 0;
+        o_reg_write        <= 0;
+        o_reg_dir_to_write <= i_reg_dir_to_write;
+        o_word_size        <= 0;
+        o_branch           <= 0;
+        o_branch_addr      <= i_branch_addr;
+        o_data_b           <= i_data_b;
+        o_signed           <= 0;
+      end else if (i_step) begin
         o_cero             <= i_cero;
         o_alu_result       <= i_alu_result;
         o_mem_read         <= i_mem_read;
