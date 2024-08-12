@@ -1,8 +1,6 @@
 `timescale 1ns / 1ps
 `include "instruction_constants.vh"
 `include "memory_constants.vh"
-`define OVERRIDE_INSTRUCTIONS
-
 module tb_PIPELINE_5th_instruction;
 
   parameter NB = 32;
@@ -48,6 +46,7 @@ module tb_PIPELINE_5th_instruction;
       .i_step(i_step),
       .i_debug_mips_register_number(i_debug_mips_register_number),
       .i_debug_address(i_debug_address),
+      .i_instruction_write_enable(1'b0),
       .o_mips_pc(o_mips_pc),
       .o_mips_alu_result(o_mips_alu_result),
       .o_mips_register_data(o_mips_register_data),

@@ -10,7 +10,6 @@ module memory_data #(
     input i_step,
     input [NB -1 : 0] i_alu_address, // TODO: revisar si Lo implementamos como un selector (no un address)
     input [NB-1 : 0] i_data_to_write,
-    input [NB_SIZE_TYPE-1:0] i_word_size,
     input i_mem_write,
     input [NB -1: 0] i_debug_address,
     input i_mem_read,

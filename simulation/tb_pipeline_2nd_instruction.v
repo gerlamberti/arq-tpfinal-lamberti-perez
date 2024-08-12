@@ -71,10 +71,10 @@ module tb_PIPELINE_2nd_instruction;
     $display("Initial setup complete.");
     /***
         ESTE TEST ES PARA LA SEGUNDA INSTRUCCI�N NOM�S
-        memory[2] = {`RTYPE_OPCODE, 5'd5, 5'd3, 5'd4, 5'b0, `ADD_FCODE};
+        memory[2] = {`RTYPE_OPCODE, 5'd5, 5'd2, 5'd4, 5'b0, `ADD_FCODE};
         ADD rd, rs, rt
-        ADD $4, $5, $3
-        $4 <- $5 + $3
+        ADD $4, $5, $2
+        $4 <- $5 + $2
 
     **/
     // Ponemos el step en alto y esperamos 1 clock
@@ -86,7 +86,7 @@ module tb_PIPELINE_2nd_instruction;
     // Aca deberia ejecutarse la ALU de la segunda instruccion
     expected_mips_pc = 16;
     #1;
-    i_debug_mips_register_number = 7;
+    i_debug_mips_register_number = 5;
     #1;
     expected_mips_alu_result = o_mips_register_data;
     #1;

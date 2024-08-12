@@ -4,10 +4,13 @@ module IF #(
     parameter NB    = 32,
     parameter TAM_I = 256
 ) (
-    input          i_clk,
-    input          i_step,
-    input          i_reset,
-    input          i_pc_write,
+    input i_clk,
+    input i_step,
+    input i_reset,
+    input i_pc_write,
+
+    input i_stall_pc,  // From stall unit
+
     input          i_branch,
     input [NB-1:0] i_branch_addr,
     input          i_jump,
@@ -35,6 +38,7 @@ module IF #(
       .NB(NB)
   ) u_PC (
       .i_clk     (i_clk),
+      .i_stall_pc(i_stall_pc),
       .i_reset   (i_reset),
       .i_step    (i_step),
       .i_pc_write(i_pc_write),

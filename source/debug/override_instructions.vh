@@ -59,6 +59,27 @@
 // memory[13] = 32'h0000000D;
 // memory[14] = 32'h0000000F;
 
+
+
+// Este caso lo hago especificamente para el 5th instruction beq 
+memory[0] = 0;
+memory[1] = 32'b10001100000000100000000000000101; // lw $2,5($0)
+memory[2] = 32'b00000000101000101010100000100000; // add $21,$5,$2
+memory[3] = 32'b00010000010000010000000000000111; // beq $2,$1,7
+memory[4] = 32'b00100000010101000000000000000100; // addi $20,$2,4
+memory[5] = 32'b10101100000011100000000000101010; // sw $14,42($0)
+memory[6] = 32'b00000000101010100110100000100000; // add $13,$5,$10
+memory[7] = 32'b00100000000000010000000000000000; // addi $1,$0,0
+memory[8] = 32'b00100000000000100000000000000000; // addi $2,$0,0
+memory[9] = 32'b00100000000000110000000000000000; // addi $3,$0,0
+memory[10] = 32'b00100000000001000000000000000000; // addi $4,$0,0
+memory[11] = 32'b00100000000001010000000000000001; // addi $5,$0,1
+memory[12] = 32'b00100000000001100000000000000010; // addi $6,$0,2
+memory[13] = 32'b00100000000001110000000000000000; // addi $7,$0,0
+memory[14] = 32'b00100000000010000000000000000000; // addi $8,$0,0
+memory[15] = 32'b00100000000010010000000000000000; // addi $9,$0,0
+memory[16] = 32'b11111111111111111111111111111111; // 
+
 // Instrucciones para sobreescribir el pipeline ADDI, ANDI, ORI, XORI, LUI
 
 // memory[0] = 32'h00000000;
@@ -79,18 +100,18 @@
 
 // Instrucciones para sobreescribir el pipeline LH, LB, LWU, LBU, LHU y SB, SH
 
-memory[0] = 32'h00000000;
-memory[1] = {`LB_OPCODE, 5'd1, 5'd7, 16'd7};  // $7 <- Memory[base:$1 + offset:7]
-memory[2] = 32'h00000003;
-memory[3] = {`LBU_OPCODE, 5'd2, 5'd8, 16'd3}; // $8 <- Memory[base:$2 + offset:3]
-memory[4] = 32'h00000004;
-memory[5] = {`LH_OPCODE,  5'd3, 5'd9, 16'd3}; // $9 <- Memory[base:$3 + offset:3]
-memory[6] = 32'h00000006;
-memory[7] = {`LHU_OPCODE, 5'd4, 5'd10, 16'd3}; // $10 <- Memory[base:$4 + offset:3]
-memory[8] = 32'h00000008;
-memory[9] = {`LWU_OPCODE,  5'd5, 5'd11, 16'd3};  // $11 <- Memory[base:$5 + offset:3]
-memory[10] = 32'h0000000A;
-memory[11] = {`LW_OPCODE,  5'd6, 5'd12, 16'd3}; // $12 <- Memory[base:$6 + offset:3]
-memory[12] = 32'h0000000C;
-memory[13] = {`SB_OPCODE,  5'd2, 5'd7, 16'd3}; // Memory[base:$2 + offset:3] <- $7
-memory[14] = {`SH_OPCODE,  5'd5, 5'd8, 16'd3}; // Memory[base:$5 + offset:3] <- $8
+//memory[0] = 32'h00000000;
+//memory[1] = {`LB_OPCODE, 5'd1, 5'd7, 16'd7};  // $7 <- Memory[base:$1 + offset:7]
+//memory[2] = 32'h00000003;
+//memory[3] = {`LBU_OPCODE, 5'd2, 5'd8, 16'd3}; // $8 <- Memory[base:$2 + offset:3]
+//memory[4] = 32'h00000004;
+//memory[5] = {`LH_OPCODE,  5'd3, 5'd9, 16'd3}; // $9 <- Memory[base:$3 + offset:3]
+//memory[6] = 32'h00000006;
+//memory[7] = {`LHU_OPCODE, 5'd4, 5'd10, 16'd3}; // $10 <- Memory[base:$4 + offset:3]
+//memory[8] = 32'h00000008;
+//memory[9] = {`LWU_OPCODE,  5'd5, 5'd11, 16'd3};  // $11 <- Memory[base:$5 + offset:3]
+//memory[10] = 32'h0000000A;
+//memory[11] = {`LW_OPCODE,  5'd6, 5'd12, 16'd3}; // $12 <- Memory[base:$6 + offset:3]
+//memory[12] = 32'h0000000C;
+//memory[13] = {`SB_OPCODE,  5'd2, 5'd7, 16'd3}; // Memory[base:$2 + offset:3] <- $7
+//memory[14] = {`SH_OPCODE,  5'd5, 5'd8, 16'd3}; // Memory[base:$5 + offset:3] <- $8

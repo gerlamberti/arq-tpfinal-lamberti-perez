@@ -17,11 +17,13 @@ module PIPELINE #(
     output [NB-1:0] o_mips_pc,
     output [NB-1:0] o_mips_alu_result,
     output [NB-1:0] o_mips_register_data,
-    output [NB-1:0] o_mips_data_memory
+    output [NB-1:0] o_mips_data_memory,
+    output          o_halt
 );
   // Wires for inter-stage communication
   wire [NB-1:0] w_if_instruction, w_if_id_pc4;
   wire [NB-1:0] w_id_instruction;
+  wire w_flush_if_id, w_flush_id, w_stall_if_id, w_stall_pc;
   wire [NB-1:0] w_id_data_a, w_id_data_b, w_id_extension_result, w_id_shamt;
   wire [5:0] w_id_instruction_funct_code, w_id_instruction_op_code;
   wire w_id_alu_src;
@@ -56,7 +58,10 @@ module PIPELINE #(
   wire [NB_SIZE_TYPE-1:0] w_ex_word_size;
   wire [NB-1:0] w_ex_branch_addr, w_ex_data_b_to_write;
   wire [NB_REGS-1:0] w_ex_reg_dir_to_write, w_fwd_reg_dir_rs, w_fwd_reg_dir_rt;
+
   wire [1:0] w_fwd_ex_a, w_fwd_ex_b, w_fwd_ex_mux;
+  wire w_flush_ex_mem;
+
 
   // Wires for MEM stage
   wire w_mem_cero;
@@ -83,7 +88,6 @@ module PIPELINE #(
   wire [NB-1:0] w_wb_data_to_register;
   wire [NB_REGS-1:0] w_wb_reg_dir_to_write;
   // Instruction Fetch (IF) stage
-  assign o_mips_pc = w_if_instruction;
 
   IF #(
       .NB(NB),
@@ -91,6 +95,7 @@ module PIPELINE #(
   ) FETCH (
       .i_clk(i_clk),
       .i_step(i_step),
+      .i_stall_pc(w_stall_pc),
       .i_reset(i_reset),
       .i_pc_write(1'b1),
       .i_branch(w_branch_zero),
@@ -101,7 +106,7 @@ module PIPELINE #(
       .i_instruction_address(i_instruction_address),
       .i_instruction_data(i_instruction_data),
       .o_instruction(w_if_instruction),
-      // TODO: descomentar .o_IF_pc(o_mips_pc),
+      .o_IF_pc(o_mips_pc),
       .o_IF_pc4(w_if_id_pc4)
   );
 
@@ -114,6 +119,8 @@ module PIPELINE #(
       .i_reset(i_reset),
       .i_pc4(w_if_id_pc4),
       .i_instruction(w_if_instruction),
+      .i_flush(w_flush_if_id),
+      .i_stall(w_stall_if_id),
       .o_pc4(w_id_pc4),
       .o_instruction(w_id_instruction)
   );
@@ -129,6 +136,7 @@ module PIPELINE #(
       .i_clk(i_clk),
       .i_step(i_step),
       .i_reset(i_reset),
+      .i_flush(w_flush_id),
       .i_instruction(w_id_instruction),
       .i_mips_register_number(i_debug_mips_register_number),
       .i_wb_reg_write_data(w_wb_data_to_register),
@@ -244,6 +252,7 @@ module PIPELINE #(
       .i_clk(i_clk),
       .i_step(i_step),
       .i_reset(i_reset),
+      .i_flush(w_flush_ex_mem),
       .i_cero(w_ex_cero),
       .i_alu_result(w_ex_alu_result),
       .i_data_b_to_write(w_ex_data_b_to_write),
@@ -338,5 +347,27 @@ module PIPELINE #(
       .o_forwarding_b(w_fwd_ex_b),   // Si se forwardea el valor de B
       .o_forwarding_mux(w_fwd_ex_mux)
   );
+
+    stall_unit #(
+    .REGS(5)
+    ) stall_unit (
+    .i_ID_EX_rt(w_id_reg_dir_rt),
+    .i_IF_ID_rs(w_id_instruction[25:21]),
+    .i_IF_ID_rt(w_id_instruction[20:16]),
+    .i_ID_EX_mem_read(w_ex_mem_read),
+    .i_branch_taken(w_branch_zero),
+    .i_EX_jump_or_jalr(w_ex_jump),
+    .i_MEM_jump_or_jalr(1'b0),
+    .i_MEM_halt(1'b0),
+    .i_WB_halt(1'b0),
+
+     .o_flush_IF_ID(w_flush_if_id),
+     .o_flush_ID(w_flush_id),
+     .o_flush_EX_MEM(w_flush_ex_mem),
+
+     .o_stall_IF_ID(w_stall_if_id),
+     .o_stall_pc(w_stall_pc)  // Previene que se incremente
+);
+
   assign o_mips_alu_result = w_ex_alu_result;
 endmodule
