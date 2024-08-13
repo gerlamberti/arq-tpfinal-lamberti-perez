@@ -11,6 +11,7 @@ module EXECUTE #(
     input                       i_alu_src,                 // 0 data_b, 1 immediate
     input       [       NB-1:0] i_data_a,
     input       [       NB-1:0] i_data_b,
+    // input       [       NB-1:0] i_reg_dir_to_write,
     // forwarding data
     input       [       NB-1:0] i_mem_fwd_data,
     input       [       NB-1:0] i_wb_fwd_data,
@@ -22,16 +23,29 @@ module EXECUTE #(
     input       [       NB-1:0] i_extension_result,        // Viene del decode, es el imm extendido
     input       [       NB-1:0] i_pc4,
     output wire [       NB-1:0] o_data_b_to_write,
+    // output wire [       NB-1:0] o_select_reg_dir_to_write,
     output wire                 o_cero,
+    output wire                 o_last_register_ctrl,
     output wire [       NB-1:0] o_alu_result,
     output wire [       NB-1:0] o_branch_addr
 
 );
 
+  //reg [4:0] last_register = 5'd31;
+
   wire [NB-1:0] w_data_a_or_shamt, w_data_a_or_shamt_or_fwd;
   wire [NB-1:0] w_data_b_or_immediate, w_data_b_or_immediate_or_fwd;
   wire [NB_ALU_OP-1:0] w_operation;
   wire w_shamt_ctrl;
+
+//   mux2 #(
+//       .NB(NB)
+//   ) mux_REG_DIR_TO_WRITE OR LAST_REGISTER (
+//       .i_data_a(i_reg_dir_to_write),
+//       .i_data_b(last_register),
+//       .i_sel(o_last_register_ctrl),
+//       .o_data(o_select_reg_dir_to_write)
+//   );
 
   mux2 #(
       .NB(NB)
@@ -84,7 +98,8 @@ module EXECUTE #(
       .i_funct_code(i_instruction_funct_code),
       .i_instruction_opcode(i_instruction_op_code),
       .o_alu_operation(w_operation),
-      .o_shamt_ctrl(w_shamt_ctrl)
+      .o_shamt_ctrl(w_shamt_ctrl),
+      .o_last_register_ctrl(o_last_register_ctrl)
   );
 
   ALU #() alu (

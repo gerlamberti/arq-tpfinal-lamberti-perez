@@ -14,6 +14,8 @@ module IF #(
     input          i_branch,
     input [NB-1:0] i_branch_addr,
     input          i_jump,
+    input          i_jr_jalr,
+    input [NB-1:0] i_jr_jalr_addr,
     input [NB-1:0] i_jump_addr,
     input          i_instruction_write_enable,  // from debug
     input [NB-1:0] i_instruction_address,       // from debug
@@ -69,10 +71,10 @@ module IF #(
       .i_sumador_pc4(pc4),
       .i_branch_addr(i_branch_addr),
       .i_jump_addr  (i_jump_addr),
-
+      .i_jr_jalr_addr (i_jr_jalr_addr),
       .i_branch(i_branch),
       .i_jump  (i_jump),
-
+      .i_jr_jalr(i_jr_jalr),
       .o_pc(test_pc)
   );
 

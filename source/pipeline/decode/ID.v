@@ -37,6 +37,7 @@ module ID #(
     output [          REGS-1:0] o_reg_dir_to_write,
     output                      o_branch,
     output                      o_jump,
+    output                      o_jr_jalr,
     output                      o_signed,
     output [            NB-1:0] o_jump_addr,
     output [NB_SIZE_TYPE-1 : 0] o_word_size,
@@ -63,6 +64,7 @@ module ID #(
   assign o_intruction_funct_code = i_instruction[CTRLNB-1:0];
   assign o_dir_rs = w_i_dir_rs;
   assign o_dir_rt = w_i_dir_rt;
+  
   //  Calculo de jump address
   //  PC4[31:28] || instr_index || 00
   assign o_jump_addr = {i_pc4[NB-1:28], i_instruction[25:0], 2'b00};
@@ -72,7 +74,7 @@ module ID #(
   ) u_Control_Unidad (
       .i_instruction     (i_instruction),
       .i_flush           (i_flush),
-      .o_ALUSrc          (o_alu_src),
+      .o_alu_src         (o_alu_src),
       .o_ExtensionMode   (w_extension_mode),
       .o_mem_read        (o_mem_read),
       .o_mem_write       (o_mem_write),
@@ -81,6 +83,7 @@ module ID #(
       .o_reg_dir_to_write(o_reg_dir_to_write),
       .o_branch          (o_branch),
       .o_jump            (o_jump),
+      .o_jr_jalr         (o_jr_jalr),
       .o_signed          (o_signed),
       .o_word_size       (o_word_size)
   );
