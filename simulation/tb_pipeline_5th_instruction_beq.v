@@ -20,6 +20,7 @@ module tb_PIPELINE_5th_instruction;
   wire [NB-1:0] o_mips_alu_result;
   wire [NB-1:0] o_mips_register_data;
   wire [NB-1:0] o_mips_data_memory;
+  wire o_mips_wb_halt;
 
   // Expected values
   reg signed [NB-1:0] expected_mips_pc;
@@ -50,7 +51,8 @@ module tb_PIPELINE_5th_instruction;
       .o_mips_pc(o_mips_pc),
       .o_mips_alu_result(o_mips_alu_result),
       .o_mips_register_data(o_mips_register_data),
-      .o_mips_data_memory(o_mips_data_memory)
+      .o_mips_data_memory(o_mips_data_memory),
+      .o_mips_wb_halt(o_mips_wb_halt)
   );
 
   // Clock generation

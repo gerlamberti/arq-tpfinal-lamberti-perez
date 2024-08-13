@@ -22,8 +22,8 @@
 `define JAL_OPCODE   6'h03 
 `define JALR_FUNCT   6'h09
 `define JR_FUNCT     6'h08
-`define HALT_OPCODE  6'h3f
 
+`define HALT_INSTRUCTION  32'hffffffff
 
 
 // Function codes for R-type instructions

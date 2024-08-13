@@ -18,6 +18,8 @@ module debug #(
     input [NB-1:0] i_mips_register,
     input [NB-1:0] i_mips_mem_data,
     input [NB-1:0] i_mips_alu_result,
+    input i_mips_wb_halt,
+
     output     [   NB_REG-1:0] o_mips_register_number, // TODO: quitarle un bit a esto para que quede mas prolijo
     output [NB-1:0] o_mips_memory_address,
     output [DATA_BITS-1:0] o_uart_tx_data,
@@ -39,6 +41,7 @@ module debug #(
   localparam WAIT_RX = 5;
   localparam FETCH_REG = 6;
   localparam WRITE_INSTRUCTION = 7;
+  localparam CONTINOUOUS_MODE = 8;
 
   // Fetch commands
   localparam CMD_FETCH_PC = 0;
@@ -50,6 +53,7 @@ module debug #(
   // UART ASCII COMMANDS
   localparam ASCII_STEP_MODE = 8'h73;  // 's'
   localparam ASCII_WRITE_IM_MODE = 8'h69;  // 'i'
+  localparam ASCII_CONTINUOUS_MODE = 8'h63;  // 'c'
 
   // HALT INSTRUCTION
 
@@ -131,6 +135,9 @@ module debug #(
               instruction_byte_counter_next = 0;
               uart_rx_reset_next = 1;
               state_next = WAIT_RX;
+            end
+            ASCII_CONTINUOUS_MODE: begin
+              state_next = CONTINOUOUS_MODE;
             end
             default: begin
               state_next = IDLE;
@@ -230,6 +237,15 @@ module debug #(
       WRITE_INSTRUCTION: begin
         instruction_write_enable_next = 1;
         state_next = WAIT_RX;
+      end
+      CONTINOUOUS_MODE: begin
+        if (i_mips_wb_halt) begin
+          o_step = 0;
+          state_next = FETCH_REG;
+        end else begin
+          o_step = 1;
+          state_next = CONTINOUOUS_MODE;
+        end
       end
       default: begin
         state_next = IDLE;

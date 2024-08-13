@@ -42,7 +42,8 @@ module ID #(
     output [            NB-1:0] o_jump_addr,
     output [NB_SIZE_TYPE-1 : 0] o_word_size,
     output [          REGS-1:0] o_dir_rs,
-    output [          REGS-1:0] o_dir_rt
+    output [          REGS-1:0] o_dir_rt,
+    output                      o_halt
 );
 
   wire [  REGS-1:0] w_i_dir_shamt;  // este - ID
@@ -85,7 +86,8 @@ module ID #(
       .o_jump            (o_jump),
       .o_jr_jalr         (o_jr_jalr),
       .o_signed          (o_signed),
-      .o_word_size       (o_word_size)
+      .o_word_size       (o_word_size),
+      .o_halt            (o_halt)
   );
 
   register_file #(

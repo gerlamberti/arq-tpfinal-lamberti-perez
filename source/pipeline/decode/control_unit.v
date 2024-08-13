@@ -21,6 +21,7 @@ module control_unit #(
     output reg [       NB_REGS-1:0] o_reg_dir_to_write,
     output reg                      o_branch,
     output reg                      o_jump,
+    output reg                      o_halt,
     output reg                      o_jr_jalr,
     output reg                      o_signed,            // solo usado para loads
     output reg [             1 : 0] o_ExtensionMode,
@@ -41,6 +42,7 @@ module control_unit #(
     o_reg_dir_to_write <= 0; \
     o_branch <= 0; \
     o_jump <= 0; \
+    o_halt <= 0; \
     o_ExtensionMode <= `SIGNED_EXTENSION_MODE; \
     o_signed <= 0; \
     o_jr_jalr <= 0; \
@@ -51,6 +53,8 @@ module control_unit #(
     `RESET_BLOCK
     if (i_flush) begin
       `RESET_BLOCK
+    end else if (i_instruction == `HALT_INSTRUCTION) begin
+      o_halt <= 1'b1;
     end else begin
       case (i_opcode)
         `RTYPE_OPCODE: begin

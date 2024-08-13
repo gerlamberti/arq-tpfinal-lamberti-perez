@@ -37,6 +37,7 @@ module TOP_debug #(
                 w_mips_register_data,
                 w_mips_alu_result,
                 w_mips_mem_data,
+                w_mips_wb_halt,
                 w_debug_memory_address;
   // Write to instruction memory
   wire w_instruction_write_enable;
@@ -86,6 +87,7 @@ module TOP_debug #(
       .i_mips_register(w_mips_register_data),
       .i_mips_mem_data(w_mips_mem_data),
       .i_mips_alu_result(w_mips_alu_result),
+      .i_mips_wb_halt(w_mips_wb_halt),
       //------------------salidas------------------//
       .o_uart_tx_ready(comienzo_transmicion), //El comieno de la trasmision es cuando la interfaz alu este vacia      ESTE ES UNICO QUE TENGO DUDA DINOSAURIO
       .o_uart_tx_data(entrada_transmisor_wire),  //se�al que va a salir de la interfaz hacia el modulo que le sigue
@@ -114,7 +116,8 @@ module TOP_debug #(
       .o_mips_pc(w_mips_pc),
       .o_mips_alu_result(w_mips_alu_result),
       .o_mips_register_data(w_mips_register_data),
-      .o_mips_data_memory(w_mips_mem_data)
+      .o_mips_data_memory(w_mips_mem_data),
+      .o_mips_wb_halt(w_mips_wb_halt)
   );
 
   /*-----------------------------------------------------------------------------------*/

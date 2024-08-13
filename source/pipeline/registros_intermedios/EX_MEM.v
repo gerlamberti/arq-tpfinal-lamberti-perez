@@ -25,6 +25,7 @@ module EX_MEM #(
     input [     NB_REGS-1:0] i_reg_dir_to_write,
     input [NB_SIZE_TYPE-1:0] i_word_size,
     input                    i_flush,
+    input                    i_halt,
 
     output reg                    o_cero,
     output reg [          NB-1:0] o_pc4,
@@ -38,10 +39,11 @@ module EX_MEM #(
     output reg [     NB_REGS-1:0] o_reg_dir_to_write,
     output reg [NB_SIZE_TYPE-1:0] o_word_size,
     output reg                    o_branch,
+    output reg [          NB-1:0] o_branch_addr,
+    output reg                    o_halt
     output reg                    o_jump,
     output reg                    o_jr_jalr,
-    output reg                    o_last_register_ctrl,
-    output reg [          NB-1:0] o_branch_addr
+    output reg                    o_last_register_ctrl
 );
 
   always @(negedge i_clk) begin
@@ -62,6 +64,7 @@ module EX_MEM #(
       o_jr_jalr          <= 0;
       o_last_register_ctrl<= 0;
       o_signed           <= 0;
+      o_halt             <= 0;
     end else begin
       if (i_flush) begin // Buscar respuesta en el libro. 
         o_cero             <= 0;
@@ -80,6 +83,7 @@ module EX_MEM #(
         o_branch_addr      <= i_branch_addr;
         o_data_b_to_write  <= i_data_b_to_write;
         o_signed           <= 0;
+        o_halt             <= 0;
       end else if (i_step) begin
         o_cero             <= i_cero;
         o_pc4              <= i_pc4;
@@ -97,6 +101,7 @@ module EX_MEM #(
         o_branch_addr      <= i_branch_addr;
         o_data_b_to_write  <= i_data_b_to_write;
         o_signed           <= i_signed;
+        o_halt             <= i_halt;
       end
     end
   end
