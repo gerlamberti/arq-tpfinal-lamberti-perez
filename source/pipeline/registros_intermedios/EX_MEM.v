@@ -78,7 +78,7 @@ module EX_MEM #(
         o_jr_jalr          <= 0;
         o_last_register_ctrl<= 0;
         o_branch_addr      <= i_branch_addr;
-        o_data_b_to_write  <= o_data_b_to_write;
+        o_data_b_to_write  <= i_data_b_to_write;
         o_signed           <= 0;
       end else if (i_step) begin
         o_cero             <= i_cero;
@@ -93,7 +93,7 @@ module EX_MEM #(
         o_branch           <= i_branch;
         o_jump             <= i_jump;
         o_jr_jalr          <= i_jr_jalr;
-        o_last_register_ctrl<= i_last_register_ctrl;
+        o_last_register_ctrl <= i_last_register_ctrl;
         o_branch_addr      <= i_branch_addr;
         o_data_b_to_write  <= i_data_b_to_write;
         o_signed           <= i_signed;
