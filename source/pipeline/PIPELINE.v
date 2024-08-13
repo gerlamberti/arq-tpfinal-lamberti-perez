@@ -38,7 +38,7 @@ module PIPELINE #(
   wire w_id_mem_to_reg;
   wire w_id_reg_write;
   wire w_id_branch;
-  wire w_id_jump, w_id_halt;
+  wire w_id_jump, w_id_halt, w_id_jr_jalr;
   wire [NB-1:0] w_id_jump_addr;
   wire [NB_SIZE_TYPE-1:0] w_id_word_size;
   wire [NB_REGS-1:0] w_id_reg_dir_to_write;
@@ -52,15 +52,15 @@ module PIPELINE #(
   wire w_ex_signed;
   wire w_ex_mem_to_reg;
   wire w_ex_reg_write;
-  wire w_ex_branch, w_ex_jump, w_ex_halt;
+  wire w_ex_branch, w_ex_jump, w_ex_halt, w_ex_jr_jalr;
   wire [NB-1:0] w_ex_jump_addr;
   wire [NB_SIZE_TYPE-1:0] w_ex_word_size;
   wire [NB-1:0] w_ex_branch_addr, w_ex_data_b_to_write;
-  wire [NB_REGS-1:0] w_ex_reg_dir_to_write, w_fwd_reg_dir_rs, w_fwd_reg_dir_rt;
+  wire [NB_REGS-1:0] w_ex_reg_dir_to_write, w_select_reg_dir_to_write, w_fwd_reg_dir_rs, w_fwd_reg_dir_rt;
 
   wire [1:0] w_fwd_ex_a, w_fwd_ex_b, w_fwd_ex_mux;
   wire w_flush_ex_mem;
-
+  wire w_ex_last_register_ctrl;
 
   // Wires for MEM stage
   wire w_mem_cero;
@@ -70,18 +70,22 @@ module PIPELINE #(
   wire w_mem_mem_write;
   wire w_mem_signed;
   wire w_mem_mem_to_reg;
-  wire w_mem_reg_write, w_mem_halt;
+  wire w_mem_reg_write, w_mem_halt, w_mem_jump, w_mem_jr_jalr;
   wire [NB_SIZE_TYPE-1:0] w_mem_word_size;
   wire [NB-1:0] w_mem_data_memory;
+  wire [NB-1:0] w_mem_pc4;
   wire w_branch_zero;
   wire [NB-1:0] w_mem_branch_addr;
   wire w_mem_branch;
+  wire w_mem_last_register_ctrl;
   wire [NB_REGS-1:0] w_mem_reg_dir_to_write;
 
   // Wires for WB stage
   wire w_wb_reg_write;
   wire w_wb_mem_to_reg;
   wire w_wb_signed;
+  wire w_wb_last_register_ctrl;
+  wire [NB-1:0] w_wb_pc4;
   wire [NB-1:0] w_wb_data_memory;
   wire [NB-1:0] w_wb_alu_address_result;
   wire [NB-1:0] w_wb_data_to_register;
@@ -100,7 +104,9 @@ module PIPELINE #(
       .i_pc_write(1'b1),
       .i_branch(w_branch_zero),
       .i_jump(w_ex_jump),
+      .i_jr_jalr(w_ex_jr_jalr),
       .i_jump_addr(w_ex_jump_addr),
+      .i_jr_jalr_addr(w_ex_data_a),
       .i_branch_addr(w_mem_branch_addr),
       .i_instruction_write_enable(i_instruction_write_enable),
       .i_instruction_address(i_instruction_address),
@@ -160,6 +166,7 @@ module PIPELINE #(
       .o_reg_dir_to_write(w_id_reg_dir_to_write),
       .o_branch(w_id_branch),
       .o_jump(w_id_jump),
+      .o_jr_jalr(w_id_jr_jalr),
       .o_jump_addr(w_id_jump_addr),
       .o_word_size(w_id_word_size),
       .o_dir_rs(w_id_reg_dir_rs),
@@ -192,6 +199,7 @@ module PIPELINE #(
       .i_reg_dir_to_write(w_id_reg_dir_to_write),
       .i_branch(w_id_branch),
       .i_jump(w_id_jump),
+      .i_jr_jalr(w_id_jr_jalr),
       .i_jump_addr(w_id_jump_addr),
       .i_word_size(w_id_word_size),
       .i_dir_rs(w_id_reg_dir_rs),
@@ -214,6 +222,7 @@ module PIPELINE #(
       .o_reg_write(w_ex_reg_write),
       .o_reg_dir_to_write(w_ex_reg_dir_to_write),
       .o_branch(w_ex_branch),
+      .o_jr_jalr(w_ex_jr_jalr),
       .o_jump(w_ex_jump),
       .o_jump_addr(w_ex_jump_addr),
       .o_word_size(w_ex_word_size),
@@ -234,6 +243,7 @@ module PIPELINE #(
       .i_alu_src(w_ex_alu_src),
       .i_data_a(w_ex_data_a),
       .i_data_b(w_ex_data_b),
+      //.i_reg_dir_to_write(w_ex_reg_dir_to_write),
       .i_shamt(w_ex_shamt),
       .i_extension_result(w_ex_extension_result),
       .i_pc4(w_ex_pc4),
@@ -242,6 +252,8 @@ module PIPELINE #(
       .i_fwd_a(w_fwd_ex_a),
       .i_fwd_b(w_fwd_ex_b),
       .i_forwarding_mux(w_fwd_ex_mux),
+      .o_last_register_ctrl(w_ex_last_register_ctrl),
+      //.o_select_reg_dir_to_write(w_select_reg_dir_to_write),
       .o_data_b_to_write(w_ex_data_b_to_write),
       .o_cero(w_ex_cero),
       .o_branch_addr(w_ex_branch_addr),
@@ -258,6 +270,9 @@ module PIPELINE #(
       .i_reset(i_reset),
       .i_flush(w_flush_ex_mem),
       .i_cero(w_ex_cero),
+      .i_pc4(w_ex_pc4),
+      .i_jump(w_ex_jump),
+      .i_jr_jalr(w_ex_jr_jalr),
       .i_alu_result(w_ex_alu_result),
       .i_data_b_to_write(w_ex_data_b_to_write),
       .i_mem_read(w_ex_mem_read),
@@ -266,12 +281,17 @@ module PIPELINE #(
       .i_signed(w_ex_signed),
       .i_reg_write(w_ex_reg_write),
       .i_reg_dir_to_write(w_ex_reg_dir_to_write),
+      .i_last_register_ctrl(w_ex_last_register_ctrl),
       .i_word_size(w_ex_word_size),
       .i_branch(w_ex_branch),
       .i_branch_addr(w_ex_branch_addr),
       .i_halt(w_ex_halt),
 
       .o_alu_result(w_mem_alu_result),
+      .o_jump(w_mem_jump),
+      .o_jr_jalr(w_mem_jr_jalr),
+      .o_pc4(w_mem_pc4),
+      .o_last_register_ctrl(w_mem_last_register_ctrl),
       .o_data_b_to_write(w_mem_data_b_to_write),
       .o_mem_read(w_mem_mem_read),
       .o_mem_write(w_mem_mem_write),
@@ -314,12 +334,16 @@ module PIPELINE #(
       .i_clk(i_clk),
       .i_step(i_step),
       .i_reset(i_reset),
+      .i_pc4(w_mem_pc4),
+      .i_last_register_ctrl(w_mem_last_register_ctrl),
       .i_reg_write(w_mem_reg_write),
       .i_reg_dir_to_write(w_mem_reg_dir_to_write),
       .i_mem_to_reg(w_mem_mem_to_reg),
       .i_data_memory(w_mem_data_memory),
       .i_alu_address_result(w_mem_alu_result),
       .i_halt(w_mem_halt),
+      .o_pc4(w_wb_pc4),
+      .o_last_register_ctrl(w_wb_last_register_ctrl),
       .o_reg_write(w_wb_reg_write),
       .o_reg_dir_to_write(w_wb_reg_dir_to_write),
       .o_mem_to_reg(w_wb_mem_to_reg),
@@ -334,8 +358,10 @@ module PIPELINE #(
       .NB_REG(5)
   ) write_back (
       .i_mem_to_reg(w_wb_mem_to_reg),
+      .i_last_register_ctrl(w_wb_last_register_ctrl),
       .i_mem_data(w_wb_data_memory),
       .i_alu_result(w_wb_alu_address_result),
+      .i_pc4(w_wb_pc4),
       .o_data_to_write_in_register(w_wb_data_to_register)
   );
 
@@ -363,8 +389,8 @@ module PIPELINE #(
       .i_IF_ID_rt(w_id_instruction[20:16]),
       .i_ID_EX_mem_read(w_ex_mem_read),
       .i_branch_taken(w_branch_zero),
-      .i_EX_jump_or_jalr(w_ex_jump),
-      .i_MEM_jump_or_jalr(1'b0),
+      .i_EX_jump_or_jalr(w_ex_jump || w_ex_jr_jalr),
+      .i_MEM_jump_or_jalr(w_mem_jump || w_mem_jr_jalr),
       .i_MEM_halt(w_mem_halt),
       .i_WB_halt(w_mips_wb_halt),
 
