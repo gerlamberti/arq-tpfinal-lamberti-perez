@@ -13,12 +13,14 @@ module MEM_WB #(
     input i_mem_to_reg,
     input [NB-1:0] i_data_memory,
     input [NB-1:0] i_alu_address_result,
+    input i_halt,
 
     output reg               o_reg_write,
     output reg [NB_REGS-1:0] o_reg_dir_to_write,
     output reg               o_mem_to_reg,
     output reg [     NB-1:0] o_data_memory,
-    output reg [     NB-1:0] o_alu_address_result
+    output reg [     NB-1:0] o_alu_address_result,
+    output reg               o_halt
 );
 
   always @(negedge i_clk) begin
@@ -28,6 +30,7 @@ module MEM_WB #(
       o_reg_dir_to_write <= 0;
       o_data_memory <= 0;
       o_alu_address_result <= 0;
+      o_halt <= 0;
 
     end else begin
       if (i_step) begin
@@ -36,6 +39,7 @@ module MEM_WB #(
         o_reg_dir_to_write <= i_reg_dir_to_write;
         o_data_memory <= i_data_memory;
         o_alu_address_result <= i_alu_address_result;
+        o_halt <= i_halt;
       end
     end
   end

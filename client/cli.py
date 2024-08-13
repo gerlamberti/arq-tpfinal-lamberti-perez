@@ -99,7 +99,7 @@ def main():
                 ser.write(user_input.encode())
 
             # Leer respuesta de UART
-            if user_input == 's':
+            if user_input == 's' or user_input == 'c':
                 # Leer y parsear los primeros 4 bytes como PC
                 pc_data = ser.read(4)
                 if len(pc_data) < 4:

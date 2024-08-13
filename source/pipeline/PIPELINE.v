@@ -18,7 +18,7 @@ module PIPELINE #(
     output [NB-1:0] o_mips_alu_result,
     output [NB-1:0] o_mips_register_data,
     output [NB-1:0] o_mips_data_memory,
-    output          o_halt
+    output          o_mips_wb_halt
 );
   // Wires for inter-stage communication
   wire [NB-1:0] w_if_instruction, w_if_id_pc4;
@@ -38,7 +38,7 @@ module PIPELINE #(
   wire w_id_mem_to_reg;
   wire w_id_reg_write;
   wire w_id_branch;
-  wire w_id_jump;
+  wire w_id_jump, w_id_halt;
   wire [NB-1:0] w_id_jump_addr;
   wire [NB_SIZE_TYPE-1:0] w_id_word_size;
   wire [NB_REGS-1:0] w_id_reg_dir_to_write;
@@ -52,8 +52,7 @@ module PIPELINE #(
   wire w_ex_signed;
   wire w_ex_mem_to_reg;
   wire w_ex_reg_write;
-  wire w_ex_branch;
-  wire w_ex_jump;
+  wire w_ex_branch, w_ex_jump, w_ex_halt;
   wire [NB-1:0] w_ex_jump_addr;
   wire [NB_SIZE_TYPE-1:0] w_ex_word_size;
   wire [NB-1:0] w_ex_branch_addr, w_ex_data_b_to_write;
@@ -71,7 +70,7 @@ module PIPELINE #(
   wire w_mem_mem_write;
   wire w_mem_signed;
   wire w_mem_mem_to_reg;
-  wire w_mem_reg_write;
+  wire w_mem_reg_write, w_mem_halt;
   wire [NB_SIZE_TYPE-1:0] w_mem_word_size;
   wire [NB-1:0] w_mem_data_memory;
   wire w_branch_zero;
@@ -87,6 +86,7 @@ module PIPELINE #(
   wire [NB-1:0] w_wb_alu_address_result;
   wire [NB-1:0] w_wb_data_to_register;
   wire [NB_REGS-1:0] w_wb_reg_dir_to_write;
+  wire w_mips_wb_halt;
   // Instruction Fetch (IF) stage
 
   IF #(
@@ -163,7 +163,8 @@ module PIPELINE #(
       .o_jump_addr(w_id_jump_addr),
       .o_word_size(w_id_word_size),
       .o_dir_rs(w_id_reg_dir_rs),
-      .o_dir_rt(w_id_reg_dir_rt)
+      .o_dir_rt(w_id_reg_dir_rt),
+      .o_halt(w_id_halt)
   );
 
   // ID/EX Pipeline Register
@@ -195,6 +196,8 @@ module PIPELINE #(
       .i_word_size(w_id_word_size),
       .i_dir_rs(w_id_reg_dir_rs),
       .i_dir_rt(w_id_reg_dir_rt),
+      .i_halt(w_id_halt),
+
       .o_instruction_funct_code(w_ex_instruction_funct_code),
       .o_instruction_op_code(w_ex_instruction_op_code),
       .o_alu_src(w_ex_alu_src),
@@ -215,7 +218,8 @@ module PIPELINE #(
       .o_jump_addr(w_ex_jump_addr),
       .o_word_size(w_ex_word_size),
       .o_dir_rs(w_fwd_reg_dir_rs),
-      .o_dir_rt(w_fwd_reg_dir_rt)
+      .o_dir_rt(w_fwd_reg_dir_rt),
+      .o_halt(w_ex_halt)
   );
 
   // Execute (EX) stage
@@ -265,6 +269,8 @@ module PIPELINE #(
       .i_word_size(w_ex_word_size),
       .i_branch(w_ex_branch),
       .i_branch_addr(w_ex_branch_addr),
+      .i_halt(w_ex_halt),
+
       .o_alu_result(w_mem_alu_result),
       .o_data_b_to_write(w_mem_data_b_to_write),
       .o_mem_read(w_mem_mem_read),
@@ -276,7 +282,8 @@ module PIPELINE #(
       .o_word_size(w_mem_word_size),
       .o_branch(w_mem_branch),
       .o_cero(w_mem_cero),
-      .o_branch_addr(w_mem_branch_addr)
+      .o_branch_addr(w_mem_branch_addr),
+      .o_halt(w_mem_halt)
   );
 
   MEMORY #(
@@ -312,11 +319,13 @@ module PIPELINE #(
       .i_mem_to_reg(w_mem_mem_to_reg),
       .i_data_memory(w_mem_data_memory),
       .i_alu_address_result(w_mem_alu_result),
+      .i_halt(w_mem_halt),
       .o_reg_write(w_wb_reg_write),
       .o_reg_dir_to_write(w_wb_reg_dir_to_write),
       .o_mem_to_reg(w_wb_mem_to_reg),
       .o_data_memory(w_wb_data_memory),
-      .o_alu_address_result(w_wb_alu_address_result)
+      .o_alu_address_result(w_wb_alu_address_result),
+      .o_halt(w_mips_wb_halt)
   );
 
 
@@ -330,8 +339,6 @@ module PIPELINE #(
       .o_data_to_write_in_register(w_wb_data_to_register)
   );
 
-
-
   forwarding_unit #(
       .REGS(5)
   ) forwarding_unit (
@@ -343,31 +350,32 @@ module PIPELINE #(
       .i_MEM_write_reg(w_mem_reg_write),     // Si se quiere escribir en un Registro, valor desde la etapa MEMORY
       .i_WB_write_reg(w_wb_reg_write),     // Si se quiere escribir en un Registro, valor desde la etapa WRITE-BACK
 
-      .o_forwarding_a(w_fwd_ex_a),  // Si se forwardea el valor de A
-      .o_forwarding_b(w_fwd_ex_b),   // Si se forwardea el valor de B
+      .o_forwarding_a  (w_fwd_ex_a),   // Si se forwardea el valor de A
+      .o_forwarding_b  (w_fwd_ex_b),   // Si se forwardea el valor de B
       .o_forwarding_mux(w_fwd_ex_mux)
   );
 
-    stall_unit #(
-    .REGS(5)
-    ) stall_unit (
-    .i_ID_EX_rt(w_id_reg_dir_rt),
-    .i_IF_ID_rs(w_id_instruction[25:21]),
-    .i_IF_ID_rt(w_id_instruction[20:16]),
-    .i_ID_EX_mem_read(w_ex_mem_read),
-    .i_branch_taken(w_branch_zero),
-    .i_EX_jump_or_jalr(w_ex_jump),
-    .i_MEM_jump_or_jalr(1'b0),
-    .i_MEM_halt(1'b0),
-    .i_WB_halt(1'b0),
+  stall_unit #(
+      .REGS(5)
+  ) stall_unit (
+      .i_ID_EX_rt(w_id_reg_dir_rt),
+      .i_IF_ID_rs(w_id_instruction[25:21]),
+      .i_IF_ID_rt(w_id_instruction[20:16]),
+      .i_ID_EX_mem_read(w_ex_mem_read),
+      .i_branch_taken(w_branch_zero),
+      .i_EX_jump_or_jalr(w_ex_jump),
+      .i_MEM_jump_or_jalr(1'b0),
+      .i_MEM_halt(w_mem_halt),
+      .i_WB_halt(w_mips_wb_halt),
 
-     .o_flush_IF_ID(w_flush_if_id),
-     .o_flush_ID(w_flush_id),
-     .o_flush_EX_MEM(w_flush_ex_mem),
+      .o_flush_IF_ID(w_flush_if_id),
+      .o_flush_ID(w_flush_id),
+      .o_flush_EX_MEM(w_flush_ex_mem),
 
-     .o_stall_IF_ID(w_stall_if_id),
-     .o_stall_pc(w_stall_pc)  // Previene que se incremente
-);
+      .o_stall_IF_ID(w_stall_if_id),
+      .o_stall_pc(w_stall_pc)  // Previene que se incremente
+  );
 
   assign o_mips_alu_result = w_ex_alu_result;
+  assign o_mips_wb_halt = w_mips_wb_halt;
 endmodule

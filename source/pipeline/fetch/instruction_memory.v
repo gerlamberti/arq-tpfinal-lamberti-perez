@@ -27,11 +27,11 @@ module instruction_memory #(
   end
 
   
-// `ifndef SYNTHESIS TODO: volver a como estaba antes
+`ifndef SYNTHESIS
   initial begin
     `include "override_instructions.vh"
   end
-// `endif
+`endif
 
 
   always @(negedge i_clk) begin
