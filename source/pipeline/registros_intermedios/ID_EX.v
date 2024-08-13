@@ -26,6 +26,7 @@ module ID_EX #(
     input                      i_reg_write,
     input [       NB_REGS-1:0] i_reg_dir_to_write,
     input                      i_jump,
+    input                      i_jr_jalr,
     input                      i_signed,
     input [            NB-1:0] i_jump_addr,
     input [       NB_REGS-1:0] i_dir_rs,
@@ -49,6 +50,7 @@ module ID_EX #(
     output reg                      o_reg_write,
     output reg [       NB_REGS-1:0] o_reg_dir_to_write,
     output reg                      o_jump,
+    output reg                      o_jr_jalr,
     output reg [            NB-1:0] o_jump_addr,
     output reg [       NB_REGS-1:0] o_dir_rs,
     output reg [       NB_REGS-1:0] o_dir_rt
@@ -72,6 +74,7 @@ module ID_EX #(
       o_reg_write <= 0;
       o_reg_dir_to_write <= 0;
       o_jump <= 0;
+      o_jr_jalr <= 0;
       o_signed <= 0;
       o_jump_addr <= 0;
       o_dir_rs <= 0;
@@ -94,6 +97,7 @@ module ID_EX #(
         o_reg_write <= i_reg_write;
         o_reg_dir_to_write <= i_reg_dir_to_write;
         o_jump <= i_jump;
+        o_jr_jalr <= i_jr_jalr;
         o_signed <= i_signed;
         o_jump_addr <= i_jump_addr;
         o_dir_rs <= i_dir_rs;
