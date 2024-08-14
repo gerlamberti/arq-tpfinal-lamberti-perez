@@ -40,7 +40,7 @@ module EX_MEM #(
     output reg [NB_SIZE_TYPE-1:0] o_word_size,
     output reg                    o_branch,
     output reg [          NB-1:0] o_branch_addr,
-    output reg                    o_halt
+    output reg                    o_halt,
     output reg                    o_jump,
     output reg                    o_jr_jalr,
     output reg                    o_last_register_ctrl
