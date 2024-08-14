@@ -153,6 +153,10 @@ def create_bin(asm_file, name_bin):
         with open(name_bin, 'w') as out:
             out.write(f"000000000000000000000000" + "\n")
             for line in f:
+                if line == '\n':
+                    continue
+                if line[0] == '#':
+                    continue
                 # Se obtiene el nombre de la instruc en la parte 0 y en la parte 1 los reg o datos
                 parts = line.strip().split(' ')
                 instruc_bin = 0
@@ -161,6 +165,9 @@ def create_bin(asm_file, name_bin):
                         instruc_bin = f"00000000000000000000000000000000"
                         out.write(instruc_bin + "\n")
                         count += 1
+                    elif (parts[0] == 'halt'):
+                        instruc_bin = f"11111111111111111111111111111111"
+                        out.write(instruc_bin)
                     else:
                         #Identipo el tipo de instruccion
                         instr_type = INSTRUCCIONES[parts[0]][0]
@@ -179,6 +186,16 @@ def create_bin(asm_file, name_bin):
 
                         out.write(instruc_bin + "\n")
                         count += 1
-            #envio como unltima instruccion un HALT
-            out.write(f"11111111111111111111111111111111")
     return count
+
+
+def main():
+    asm_file = 'ejemplo.asm'
+    name_bin = 'test.bin'
+    count = create_bin(asm_file, name_bin)
+    print(f"Se han generado {count} instrucciones en {name_bin}")
+
+
+# define main action
+if __name__ == '__main__':
+    main()

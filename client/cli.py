@@ -138,6 +138,14 @@ def main():
                     memory_address = hex(i * 4)
                     compare_and_display(f"Memoria {memory_address}({i})", mem_hex, prev_values['memoria'][i], Fore.MAGENTA)
                     prev_values['memoria'][i] = mem_hex
+                
+                # Leer y parsear Clock count (4 bytes)
+                clock_count = ser.read(4)
+                clock_count_dec = int(binascii.hexlify(clock_count).decode(), 16)
+                if len(clock_count) < 4:
+                    print("Datos insuficientes para Clock Count.")
+                    continue
+                print(f"Clock count: {clock_count_dec}")
 
     except KeyboardInterrupt:
         print("Terminando el programa.")

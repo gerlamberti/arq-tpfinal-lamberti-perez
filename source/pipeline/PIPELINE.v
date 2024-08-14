@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `include "memory_constants.vh"
+`include "instruction_constants.vh"
 
 module PIPELINE #(
     parameter NB = 32,
@@ -370,6 +371,14 @@ module PIPELINE #(
   ) forwarding_unit (
       .i_EX_MEM_rd(w_mem_reg_dir_to_write),  // RD corresnpondiente a la etapa EXECUTE/MEMORY
       .i_MEM_WB_rd(w_wb_reg_dir_to_write),  // RD corresnpondiente a la etapa MEMORY/WRITE-BACK
+      .is_rt_a_destination(
+        w_ex_instruction_op_code == `ADDI_OPCODE ||
+        w_ex_instruction_op_code == `SLTI_OPCODE ||
+        w_ex_instruction_op_code == `ANDI_OPCODE ||
+        w_ex_instruction_op_code == `ORI_OPCODE  ||
+        w_ex_instruction_op_code == `XORI_OPCODE ||
+        w_ex_instruction_op_code == `LUI_OPCODE
+      ),  // Si es una instruccion R-Type
       .i_rs(w_fwd_reg_dir_rs),  // data_a
       .i_rt(w_fwd_reg_dir_rt),  // data_b
       .i_EX_mem_write(w_ex_mem_write),  // Si se quiere escribir en memoria, corresponde a STOREs

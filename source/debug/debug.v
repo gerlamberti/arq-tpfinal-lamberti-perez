@@ -7,7 +7,8 @@ module debug #(
     parameter NUMBER_REGISTERS = 32,
     parameter NUMBER_MEM_WORDS = 16,
     parameter NB_REG = $clog2(NUMBER_REGISTERS + 1),
-    parameter NB_STATE = 5
+    parameter NB_STATE = 5,
+    parameter MAX_CYCLES = 450000
 ) (
     input i_clk,
     input i_reset,
@@ -48,7 +49,8 @@ module debug #(
   localparam CMD_FETCH_REGS = 1;
   localparam CMD_FETCH_ALU = 2;
   localparam CMD_FETCH_MEM = 3;
-  localparam CMD_FETCH_FINISHED = 4;
+  localparam CMD_FETCH_CLK_COUNT = 4;
+  localparam CMD_FETCH_FINISHED = 5;
 
   // UART ASCII COMMANDS
   localparam ASCII_STEP_MODE = 8'h73;  // 's'
@@ -65,10 +67,12 @@ module debug #(
   // Uart related registers
   reg [DATA_BITS-1:0] uart_tx_data, uart_tx_data_next;
   reg uart_tx_ready, uart_tx_ready_next;
+  reg halted, halted_next;
+  reg [31:0] cycle_counter, cycle_counter_next;
   reg [1:0] tx_count_bytes, tx_count_bytes_next;
   reg [1:0] instruction_byte_counter, instruction_byte_counter_next;
   reg [NB_REG-1:0] mips_register_number, mips_register_number_next;
-  reg [3:0] fetch_cmd, fetch_cmd_next;
+  reg [NB_STATE-1:0] fetch_cmd, fetch_cmd_next;
   reg [NB-1:0] mips_memory_address, mips_memory_address_next;
   reg [NB-1:0] instruction_address_next;
   reg instruction_write_enable_next;
@@ -90,6 +94,8 @@ module debug #(
       o_instruction_address <= 0;
       o_instruction_write_enable <= 0;
       o_uart_rx_reset <= 0;
+      halted <= 0;
+      cycle_counter <= 0;
     end else begin
       state                      <= state_next;
       tx_data_32                 <= tx_data_32_next;
@@ -104,6 +110,15 @@ module debug #(
       o_instruction_address      <= instruction_address_next;
       o_instruction_write_enable <= instruction_write_enable_next;
       o_uart_rx_reset            <= uart_rx_reset_next;
+      halted                     <= halted_next;
+      // Increment cycle_counter in the sequential block
+      if (state == CONTINOUOUS_MODE && !halted && cycle_counter < MAX_CYCLES) begin
+        cycle_counter <= cycle_counter + 1;
+      end else if (state == STEP) begin
+        cycle_counter <= cycle_counter + 1;
+      end else begin
+        cycle_counter <= cycle_counter;
+      end
     end
   end
 
@@ -122,6 +137,13 @@ module debug #(
     instruction_address_next = o_instruction_address;
     instruction_write_enable_next = 0;
     uart_rx_reset_next = 0;
+    halted_next = halted;
+    cycle_counter_next = cycle_counter;
+
+    if (i_mips_wb_halt) begin
+      halted_next = 1;
+    end
+
     case (state)
       IDLE: begin
         if (i_uart_rx_ready) begin
@@ -146,8 +168,13 @@ module debug #(
         end
       end
       STEP: begin
-        o_step = 1;
-        state_next = FETCH_REG;
+        if (halted) begin
+          o_step = 0;
+          state_next = FETCH_REG;
+        end else begin
+          o_step = 1;
+          state_next = FETCH_REG;
+        end
       end
       SEND_DATA_TX: begin
         // Me quedo con los 8 bits superiores, despues en el siguiente estado se shiftean
@@ -218,10 +245,15 @@ module debug #(
               mips_memory_address_next = mips_memory_address + 4;
             end else begin
               state_next = FETCH_REG;
-              fetch_cmd_next = CMD_FETCH_FINISHED;
+              fetch_cmd_next = CMD_FETCH_CLK_COUNT;
               tx_data_32_next = 0;
               mips_memory_address_next = 0;
             end
+          end
+          CMD_FETCH_CLK_COUNT: begin
+            tx_data_32_next = cycle_counter;
+            state_next = SEND_DATA_TX;
+            fetch_cmd_next = CMD_FETCH_FINISHED;
           end
           CMD_FETCH_FINISHED: begin
             tx_data_32_next = 0;
@@ -239,9 +271,12 @@ module debug #(
         state_next = WAIT_RX;
       end
       CONTINOUOUS_MODE: begin
-        if (i_mips_wb_halt) begin
+        if (halted) begin
           o_step = 0;
           state_next = FETCH_REG;
+        end else if (cycle_counter >= MAX_CYCLES) begin
+          o_step = 0;
+          state_next = IDLE;
         end else begin
           o_step = 1;
           state_next = CONTINOUOUS_MODE;
@@ -255,6 +290,7 @@ module debug #(
         mips_register_number_next = 0;
         mips_memory_address_next = 0;
         o_step = 0;
+        halted_next = 0;
         fetch_cmd_next = CMD_FETCH_PC;
         instruction_data_buffer_next = 0;
         instruction_byte_counter_next = 0;
@@ -262,8 +298,11 @@ module debug #(
         instruction_write_enable_next = 0;
         uart_rx_reset_next = 0;
       end
-
     endcase
+    // If halted, force o_step to 0
+    if (halted) begin
+      o_step = 0;
+    end
   end
 
   assign o_uart_tx_data = uart_tx_data;

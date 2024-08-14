@@ -2,7 +2,7 @@
 module TOP_debug #(
     parameter ancho_dato = 8,
     parameter BAUD_RATE = 9600,  //velocidad tipica 
-    parameter FREC_CLOCK_MHZ = 100,
+    parameter FREC_CLOCK_MHZ = 10,
     parameter NB = 32
 ) (
     /*-----Entradas al modulo-----*/
@@ -43,13 +43,20 @@ module TOP_debug #(
   wire w_instruction_write_enable;
   wire [NB-1:0] w_instruction_address;
   wire [NB-1:0] w_instruction_data;
+  
+    clk_wiz_0 clk_wiz
+   (
+    .clk_out1(clk_wz),     // output clk_out50MHz
+    .reset(reset), // input reset
+    .clk_in1(clk)
+    );   
   /*-----------------------------------------------------------------------------------*/
   // instanciando el generador de baudio 
   GeneradorDeBaudios #(
       .BAUD_RATE(BAUD_RATE),
       .FREC_CLOCK_MHZ(FREC_CLOCK_MHZ)
   ) generador_ticks (
-      .clk(clk),
+      .clk(clk_wz),
       .reset(reset),
       .senial_tick(senial_tick)
   );
@@ -61,7 +68,7 @@ module TOP_debug #(
       .ancho_dato(ancho_dato)
   ) receptor (
       //------------------entradas------------------//
-      .clk(clk),
+      .clk(clk_wz),
       .reset(w_receptor_reset),
       .RX(Entrada_RX),  //linea de recepcion
       .senial_generadorTick(senial_tick),  //entrada que proviene del generador de baudios
@@ -78,7 +85,7 @@ module TOP_debug #(
       .DATA_BITS(8)
   ) debug_unit (
       //------------------entradas------------------//
-      .i_clk(clk),
+      .i_clk(clk_wz),
       .i_reset(reset),
       .i_uart_rx_ready(tick_completos_receptor), // EN .salida_receptor     DE LA INSTANCIACION DEL RECEPTOR HAY QUE PONER EL MUSMO PARAMETRO.    
       .i_uart_rx_data(salida_receptor),  //salida del receptor OKEY
@@ -105,7 +112,7 @@ module TOP_debug #(
   PIPELINE #(
       .NB(NB)
   ) pipeline (
-      .i_clk(clk),
+      .i_clk(clk_wz),
       .i_step(step),
       .i_reset(reset),
       .i_debug_mips_register_number(w_debug_mips_register_number),
@@ -126,7 +133,7 @@ module TOP_debug #(
       .ancho_dato(ancho_dato)
   ) transmisor (
       //------------------entradas------------------//
-      .clk(clk),
+      .clk(clk_wz),
       .reset(reset),
       .comienzo_TX(comienzo_transmicion),
       .senial_generadorTick(senial_tick),

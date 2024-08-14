@@ -42,7 +42,7 @@ module stall_unit #(
       o_flush_EX_MEM = 1'b1;
       o_flush_ID     = 1'b1;
       o_stall_IF_ID  = 1'b0;
-      o_stall_pc     = 1'b0;
+      o_stall_pc     = 1'b1;
     end else begin
       // data hazards (LOAD)
       // LW $2 , 4($0)

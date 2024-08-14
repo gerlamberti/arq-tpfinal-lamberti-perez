@@ -32,6 +32,10 @@ module IF_ID #(
       o_instruction <= i_instruction;
       o_pc4         <= i_pc4;
     end
+    else begin
+         o_instruction <= i_instruction;
+         o_pc4         <= i_pc4;
+    end
   end
 
 
