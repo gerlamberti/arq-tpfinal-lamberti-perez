@@ -61,24 +61,67 @@
 
 
 
-// Este caso lo hago especificamente para el 5th instruction beq 
-// memory[0] = 0;
-// memory[1] = 32'b10001100000000100000000000000101; // lw $2,5($0)
-// memory[2] = 32'b00000000101000101010100000100000; // add $21,$5,$2
-// memory[3] = 32'b00010000010000010000000000000111; // beq $2,$1,7
-// memory[4] = 32'b00100000010101000000000000000100; // addi $20,$2,4
-// memory[5] = 32'b10101100000011100000000000101010; // sw $14,42($0)
-// memory[6] = 32'b00000000101010100110100000100000; // add $13,$5,$10
-// memory[7] = 32'b00100000000000010000000000000000; // addi $1,$0,0
-// memory[8] = 32'b00100000000000100000000000000000; // addi $2,$0,0
-// memory[9] = 32'b00100000000000110000000000000000; // addi $3,$0,0
-// memory[10] = 32'b00100000000001000000000000000000; // addi $4,$0,0
-// memory[11] = 32'b00100000000001010000000000000001; // addi $5,$0,1
-// memory[12] = 32'b00100000000001100000000000000010; // addi $6,$0,2
-// memory[13] = 32'b00100000000001110000000000000000; // addi $7,$0,0
-// memory[14] = 32'b00100000000010000000000000000000; // addi $8,$0,0
-// memory[15] = 32'b00100000000010010000000000000000; // addi $9,$0,0
-// memory[16] = 32'b11111111111111111111111111111111; // 
+memory[0] =  32'b0000000000000;  // nop              | 0x00000000
+memory[1] =  32'b00000000000000000000000000000000;  // addi $5,$0,32    | 0x20050020
+memory[2] =  32'b00100000000001110000000000100100;  // j 7              | 0x08000007
+memory[3] =  32'b00100000000000010000000000000100;  // nop              | 0x00000000
+memory[4] =  32'b00100000001000100000000000000100;  // addi $6,$0,2     | 0x20060002
+memory[5] =  32'b00000000111000001111100000001001;  // addi $7,$0,17    | 0x20070011
+memory[6] =  32'b00000000000000000000000000000000;  // addi $8,$0,18    | 0x20080012
+memory[7] =  32'b00100000000001100000000000000010;  // addi $9,$0,29    | 0x2009001D
+memory[8] =  32'b00100000000001110000000000010001;  // addi $10,$0,100  | 0x200A0064
+memory[9] =  32'b00100000000010000000000000010010;  // addi $11,$0,211  | 0x200B00D3
+memory[10] = 32'b00100000000010010000000000011101;  // halt            | 0xFFFFFFFF
+memory[11] = 32'b00100000000010100000000001100100;  // sw $1,20($0)   | 0xAC010014
+memory[12] = 32'b00100000000010110000000011010011;  // addi $1,$0,23  | 0x20010017
+memory[13] = 32'b11111111111111111111111111111111;  // sw $1,24($0)   | 0xAC010018
+memory[14] = 32'b00100000000000010000000010100101;  // addi $1,$0,165 | 0x200100A5
+memory[15] = 32'b10101100000000010000000000011100;  // sw $1,28($0)   | 0xAC01001C
+memory[16] = 32'b00100000000010100000000000000000;  // addi $10,$0,0  | 0x200A0000
+memory[17] = 32'b00100000000010110000000000000100;  // addi $11,$0,4  | 0x200B0004
+memory[18] = 32'b00100000000011000000000000100000;  // addi $12,$0,32 | 0x200C0020
+memory[19] = 32'b10001101011000010000000000000000;  // lw $1,0($11)    #76 | 0x8D610000 
+memory[20] = 32'b00000001010000010001000000101010;  // slt $2,$10,$1   #80 | 0x0141102A 
+memory[21] = 32'b00010000010000000000000000000010;  // beq $2,$0,2     #84 | 0x10400002 
+memory[22] = 32'b00000000000000000000000000000000;  // nop             #88 | 0x00000000 
+memory[23] = 32'b00000000001000000101000000100000;  // add $10,$1,$0   #92 | 0x00205020 
+memory[24] = 32'b00100001011010110000000000000100;  // addi $11,$11,4  #96 | 0x216B0004 
+memory[25] = 32'b00000001011011000001000000101010;  // slt $2,$11,$12  #100 | 0x016c102a 
+memory[26] = 32'b00010100010000001111111111111000;  // bne $2,$0,65528 #104 | 0x1480FFF8 
+memory[27] = 32'b00000000000000000000000000000000;  // nop             #108 | 0x00000000 
+memory[28] = 32'b11111111111111111111111111111111;  // halt            #112 | 0xFFFFFFFF 
+memory[29] = 32'b11111111111111111111111111111111;  //                 #116 | 0xFFFFFFFF 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Instrucciones para sobreescribir el pipeline ADDI, ANDI, ORI, XORI, LUI
 
@@ -119,20 +162,21 @@
 // Instrucciones para sobreescribir el pipeline JAL, JR y JALR
 // HAY QUE TENER CUIDADO PORQUE CUANDO TENGO JAL or JUMP en el MEM y DESCARTA EL DECODE y EXECUTE... REVISAR UNIT STALL ...
 
-memory[0] = 32'h00000000;
-//memory[1] = {`JAL_OPCODE, 26'd4};;  // JAL 4, deberia saltar a instruccion 4
-//memory[1] = {`RTYPE_OPCODE, 5'd4, 15'd0, `JR_FUNCT};  // JR $4, deberia saltar a instruccion 4 por el registro 4
-memory[1] = {`RTYPE_OPCODE, 5'd4, 15'd0, `JALR_FUNCT};  // JALR $4, $2 deberia saltar a instruccion 4 por el registro 4
-memory[2] = 32'h00000000;
-memory[3] = 32'h00000000;
-memory[4] = 32'h00000000;
-memory[5] = {`ADDI_OPCODE, 5'd7, 5'd2, 16'd4}; // tuve que moverlo de la posicion memory[4] al memory[5] porque el flush me descartaba la operacion
-memory[6] = 32'h00000000;
-memory[7] = 32'h00000000; 
-memory[8] = 32'h00000000;
-memory[9] = 32'h00000000;
-memory[10] = 32'h00000000;
-memory[11] = 32'h00000000;
-memory[12] = 32'h00000000;
-memory[13] = 32'h00000000;
-memory[14] = 32'h00000000;
+// memory[0] = 32'h00000000;
+// //memory[1] = {`JAL_OPCODE, 26'd4};;  // JAL 4, deberia saltar a instruccion 4
+// //memory[1] = {`RTYPE_OPCODE, 5'd4, 15'd0, `JR_FUNCT};  // JR $4, deberia saltar a instruccion 4 por el registro 4
+// memory[1] = {`RTYPE_OPCODE, 5'd4, 15'd0, `JALR_FUNCT};  // JALR $4, $2 deberia saltar a instruccion 4 por el registro 4
+// memory[2] = 32'h00000000;
+// memory[3] = 32'h00000000;
+// memory[4] = 32'h00000000;
+// memory[5] = {`ADDI_OPCODE, 5'd7, 5'd2, 16'd4}; // tuve que moverlo de la posicion memory[4] al memory[5] porque el flush me descartaba la operacion
+// memory[6] = 32'h00000000;
+// memory[7] = 32'h00000000; 
+// memory[8] = 32'h00000000;
+// memory[9] = 32'h00000000;
+// memory[10] = 32'h00000000;
+// memory[11] = 32'h00000000;
+// memory[12] = 32'h00000000;
+// memory[13] = 32'h00000000;
+// memory[14] = 32'h00000000;
+

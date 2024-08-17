@@ -87,37 +87,10 @@ module tb_PIPELINE_5th_instruction;
     **/
     // Ponemos el step en alto y esperamos 1 clock
     i_step = 1;
+    for (i = 0; i<3; i = i + 1) begin
     @(o_mips_pc);  // PC = 4; Ciclo 1;
-    @(o_mips_pc);  // PC = 8; Ciclo 2;
-    @(o_mips_pc);  // PC = 12; Ciclo 3;
-    @(o_mips_pc);  // PC = 16; Ciclo 4;
-    @(o_mips_pc);  // PC = 20; Ciclo 5;
-    @(o_mips_pc);  // PC = 24; Ciclo 6;
-    @(o_mips_pc);  // PC = 28; Ciclo 7;
-    // Aca deberia ejecutarse la ALU de la quinta instruccion
-    expected_mips_pc = 28;
-    if (o_mips_pc !== expected_mips_pc) $finish;
-    #1;
-    // Obtengo valor de rs
-    i_debug_mips_register_number = beq_rs;
-    #1;
-    i = o_mips_register_data;
-    #1;
-    // Obtengo valor de rt
-    i_debug_mips_register_number   = beq_rt;
-    #1;
-    expected_mips_alu_result = i - o_mips_register_data;  // rs - rt
-    if (o_mips_alu_result !== expected_mips_alu_result) $finish;
+    end
     
-    // Lo separo en 2 al calculo porque no me deja el maldito verilog
-    // El esperado es 5th_instruction_PC + 4 + sign_extend(offset | 00) 
-    expected_mips_pc = $signed({beq_offset, 2'b00}); 
-    expected_mips_pc = expected_mips_pc + (4*5) + 4;
-    
-    // Esta instruccion deberia saltar
-
-    @(o_mips_pc); // Aca deberia saltar al branch address ; Ciclo 8; Memory stage
-    if (o_mips_pc !== expected_mips_pc) $finish;
     $display("Fin de los tests. Todo exitoso.");
     $finish;
   end

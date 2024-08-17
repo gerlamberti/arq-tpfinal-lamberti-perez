@@ -8,6 +8,7 @@ module forwarding_unit #(
         input       [REGS-1 : 0] i_MEM_WB_rd,         // RD corresnpondiente a la etapa MEMORY/WRITE-BACK
         input       [REGS-1 : 0] i_rt,                // data_b
         input       [REGS-1 : 0] i_rs,                // data_a
+        input                    is_rt_a_destination,
         input                      i_EX_mem_write,      // Si se quiere escribir en memoria, corresponde a STOREs
         input                      i_MEM_write_reg,     // Si se quiere escribir en un Registro, valor desde la etapa MEMORY
         input                      i_WB_write_reg,     // Si se quiere escribir en un Registro, valor desde la etapa WRITE-BACK
@@ -61,7 +62,7 @@ module forwarding_unit #(
 
         // Similarmente, se manejan casos de forwarding para el operando B considerando el registro fuente de B (i_rt)
         // y las señales de escritura en memoria y registros.
-        if((i_EX_MEM_rd == i_rt) && i_MEM_write_reg) begin
+        if((i_EX_MEM_rd == i_rt) && i_MEM_write_reg && !is_rt_a_destination) begin
             if(i_EX_mem_write) begin            // Hay Store
                 o_forwarding_b      = 2'b00;    // No forwardeo
                 o_forwarding_mux    = 2'b00;    // forwardea reg de EX_MEM para store // Dato de Memoria
@@ -71,7 +72,7 @@ module forwarding_unit #(
                 o_forwarding_mux    = 2'b10;    // Dato normal
             end
         end
-        else if ((i_MEM_WB_rd == i_rt) && i_WB_write_reg) begin
+        else if ((i_MEM_WB_rd == i_rt) && i_WB_write_reg && !is_rt_a_destination) begin
             if(i_EX_mem_write) begin            // Hay store
                 o_forwarding_b      = 2'b00;    // No forwardeo
                 o_forwarding_mux    = 2'b01;    // Dato de WriteBack (01)

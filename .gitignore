@@ -129,4 +129,3 @@ _build_/
 
 # Ignore python cache files
 __pycache__/
-*.asm

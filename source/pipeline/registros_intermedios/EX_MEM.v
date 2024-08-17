@@ -83,7 +83,7 @@ module EX_MEM #(
         o_branch_addr      <= i_branch_addr;
         o_data_b_to_write  <= i_data_b_to_write;
         o_signed           <= 0;
-        o_halt             <= 0;
+        o_halt             <= i_halt;
       end else if (i_step) begin
         o_cero             <= i_cero;
         o_pc4              <= i_pc4;

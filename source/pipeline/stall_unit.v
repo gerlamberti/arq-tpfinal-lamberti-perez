@@ -27,7 +27,7 @@ module stall_unit #(
       o_flush_ID     = 1'b1;  // DECODE
       o_stall_IF_ID  = 1'b0;
       o_stall_pc     = 1'b0;
-    end else if (i_EX_jump_or_jalr || i_MEM_jump_or_jalr) begin  // Hazards con jumps
+    end else if (i_EX_jump_or_jalr) begin  // Hazards con jumps
       // Al tomar el salto se borra las dos instrucciones que entran despues del salto porque son instrucciones invalidas
       // No hay stall
       o_flush_IF_ID  = 1'b0;
@@ -42,7 +42,7 @@ module stall_unit #(
       o_flush_EX_MEM = 1'b1;
       o_flush_ID     = 1'b1;
       o_stall_IF_ID  = 1'b0;
-      o_stall_pc     = 1'b0;
+      o_stall_pc     = 1'b1;
     end else begin
       // data hazards (LOAD)
       // LW $2 , 4($0)

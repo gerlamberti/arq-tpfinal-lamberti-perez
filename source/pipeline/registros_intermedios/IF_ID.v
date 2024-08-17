@@ -23,7 +23,7 @@ module IF_ID #(
       o_instruction <= {NB{1'b0}};
       o_pc4         <= {NB{1'b0}};
     end else if (i_flush) begin  //i_flush
-      o_instruction <= 0;
+      o_instruction <= i_instruction;
       o_pc4         <= i_pc4; // Cuando hay un halt no quiero que quede en cero sino en el valor en el que se halteo forever
     end else if (i_stall) begin
       o_instruction <= o_instruction;
@@ -31,6 +31,10 @@ module IF_ID #(
     end else if (i_step) begin  //i_IF_ID_Write & i_step
       o_instruction <= i_instruction;
       o_pc4         <= i_pc4;
+    end
+    else begin
+         o_instruction <= i_instruction;
+         o_pc4         <= i_pc4;
     end
   end
 
