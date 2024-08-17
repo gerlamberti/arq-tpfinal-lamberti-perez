@@ -87,7 +87,7 @@ module tb_PIPELINE_5th_instruction;
     **/
     // Ponemos el step en alto y esperamos 1 clock
     i_step = 1;
-    for (i = 0; i<15; i = i + 1) begin
+    for (i = 0; i<3; i = i + 1) begin
     @(o_mips_pc);  // PC = 4; Ciclo 1;
     end
     

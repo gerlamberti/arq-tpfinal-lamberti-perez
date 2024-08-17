@@ -5,9 +5,8 @@ from colorama import init, Fore, Style
 from pprint import pprint
 import assembler
 
-def compile_instructions():
-    # Aquí puedes agregar la lógica de compilación necesaria
-    assembler.create_bin("ejemplo.asm", "entrada.bin")
+def compile_instructions(file_to_compile):
+    assembler.create_bin(f"{file_to_compile}", "entrada.bin")
     print("Compilando instrucciones...")
 
 def compare_and_display(label, new_value, prev_value, color):
@@ -54,11 +53,12 @@ def main():
             ser.reset_input_buffer() # Esto lo meto porque si la placa hace un reset se manda un byte no se por que
 
             if user_input == 'i':
-                compile_instructions()  # Llamar a la función de compilación
+                file_path = input("Ingrese archivo a enviar (por defecto ejemplo.asm):") or "ejemplo.asm"
+                compile_instructions(file_path)  # Llamar a la función de compilación
                 ser.write(b'i')  # Enviar la letra 'i' al módulo UART
 
                 # Leer contenido del archivo y enviar
-                file_path = input("Ingrese la ruta del archivo con instrucciones (por defecto entrada.bin):") or "entrada.bin"
+                file_path = "entrada.bin"
                 try:
                     with open(file_path, 'r') as file:
                         lines = file.readlines()
