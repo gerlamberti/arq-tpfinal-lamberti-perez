@@ -79,7 +79,7 @@ module debug #(
   reg uart_rx_reset_next;
 
 
-  always @(posedge i_clk or posedge i_reset) begin
+  always @(negedge  i_clk) begin
     if (i_reset) begin
       state <= IDLE;
       tx_data_32 <= 0;
